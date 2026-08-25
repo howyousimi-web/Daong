@@ -1,3 +1,3 @@
 You guys know what to do kinda, ggs
 
-don't fprget to place codes in the respository
+don't forget to place codes in the respository
