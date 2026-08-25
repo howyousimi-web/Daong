@@ -1,3 +1,3 @@
 You guys know what to do kinda, ggs
 
-don't forget to place codes in the respository
+don't forget to place codes in this respository
