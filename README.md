@@ -1,1 +1,1 @@
-//You guys know what to do kinda, ggs
+You guys know what to do kinda, ggs
