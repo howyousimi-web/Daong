@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Info & Impact — DAONG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/ai-assistant-toggle.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="has-app-header" data-auth-state="unauthenticated">
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="state-banner" class="state-banner" role="status" aria-live="polite" hidden></div>
+
+  <header class="app-header" id="topbar">
+    <div class="shell-wide app-header-inner">
+      <a href="index.html" class="wordmark" aria-label="DAONG Homepage">
+        <span class="mark">DA</span>
+        <span class="word"><span class="name">ONG</span><span class="tagline">Relief Accountability</span></span>
+      </a>
+      <nav class="navlinks" aria-label="Primary Navigation">
+        <a href="index.html">Home</a>
+        <a href="track.html" class="nav-highlight">Track a Donation</a>
+        <a href="drives.html">Donation Drives</a>
+        <a href="info.html" aria-current="page">Info &amp; Impact</a>
+        <a href="about.html">About Us</a>
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+      <div class="header-actions">
+        <button type="button" id="theme-toggle" class="icon-btn theme-toggle" aria-label="Toggle light/dark theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button type="button" id="bell-toggle" class="icon-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false" aria-controls="notif-panel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span id="bell-badge" class="badge-dot" hidden>0</span>
+        </button>
+        <div class="topbar-auth topbar-auth-guest">
+          <button type="button" class="btn btn-gold btn-sm" data-action="login">Log In (Demo)</button>
+        </div>
+        <div class="topbar-auth topbar-auth-user">
+          <span class="avatar" id="topbar-user-avatar">G</span>
+          <button type="button" class="btn btn-outline btn-sm" data-action="logout">Log Out</button>
+        </div>
+        <button type="button" id="hamburger-toggle" class="icon-btn" aria-label="Open menu" aria-expanded="false" aria-controls="main-drawer">
+          <span class="hamburger-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div id="app-scrim" class="scrim"></div>
+
+  <div id="notif-panel" class="notif-panel" role="dialog" aria-label="Notifications">
+    <div class="notif-panel-head"><h2>Notifications</h2></div>
+    <ul id="notif-list" class="notif-list" aria-live="polite"></ul>
+  </div>
+
+  <nav id="main-drawer" class="nav-drawer" role="dialog" aria-label="Main menu" hidden>
+    <div class="drawer-head">
+      <h2>Menu</h2>
+      <button type="button" id="drawer-close" class="icon-btn" aria-label="Close menu">✕</button>
+    </div>
+    <div class="drawer-nav">
+      <a href="index.html">Home</a>
+      <a href="track.html" class="nav-highlight">Track a Donation</a>
+      <a href="drives.html">Donation Drives</a>
+      <a href="info.html" aria-current="page">Info &amp; Impact</a>
+      <a href="about.html">About Us</a>
+      <a href="dashboard.html">Dashboard</a>
+    </div>
+    <div class="drawer-auth">
+      <div class="drawer-user" data-auth-only>
+        <span id="drawer-user-avatar" class="avatar">G</span>
+        <div>
+          <div id="drawer-user-name" class="drawer-user-name">Guest Volunteer</div>
+          <span id="drawer-user-role" class="role-pill">donor</span>
+        </div>
+      </div>
+      <button type="button" class="btn btn-outline" data-auth-only data-action="logout">Log Out</button>
+      <button type="button" class="btn btn-gold" data-guest-only data-action="login">Log In (Demo)</button>
+      <button type="button" class="drawer-admin-link" data-guest-only data-action="login-admin">Log in as coordinator (admin demo)</button>
+    </div>
+  </nav>
+
+  <div id="auth-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" hidden>
+    <div class="modal-box">
+      <h2 id="auth-modal-title">Log in required</h2>
+      <p>Create an account or log in to pledge donations.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-gold" data-action="login">Log In (Demo)</button>
+        <button type="button" id="auth-modal-close" class="btn btn-outline">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       AI ASSISTANT TOGGLE COMPONENT — see css/ai-assistant-toggle.css
+       and js/ai-assistant-toggle.js. Placeholder replies only; wire a
+       real backend into requestAssistantReply() in that JS file.
+       ================================================================ -->
+  <div id="aiat-root">
+    <button type="button" id="aiat-toggle" class="aiat-toggle"
+      aria-haspopup="dialog" aria-expanded="false" aria-controls="aiat-panel"
+      aria-label="Open AI assistant">
+      <span class="aiat-toggle-icon">
+        <svg class="aiat-icon aiat-icon-chat" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <rect x="3" y="4" width="18" height="13" rx="4"></rect>
+          <polygon points="8,17 8,21 12,17"></polygon>
+          <circle cx="8" cy="10.5" r="1.3"></circle>
+          <circle cx="12" cy="10.5" r="1.3"></circle>
+          <circle cx="16" cy="10.5" r="1.3"></circle>
+        </svg>
+        <svg class="aiat-icon aiat-icon-close" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <line x1="5" y1="5" x2="19" y2="19"></line>
+          <line x1="19" y1="5" x2="5" y2="19"></line>
+        </svg>
+      </span>
+    </button>
+
+    <div id="aiat-panel" class="aiat-panel" role="dialog" aria-modal="false" aria-labelledby="aiat-title" inert>
+      <div class="aiat-panel-head">
+        <div class="aiat-panel-heading">
+          <span class="aiat-status-dot" aria-hidden="true"></span>
+          <div>
+            <h2 id="aiat-title">AI Assistant</h2>
+            <p class="aiat-subtitle">Ask me anything</p>
+          </div>
+        </div>
+        <button type="button" id="aiat-close" class="aiat-close-btn" aria-label="Close AI assistant">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <line x1="5" y1="5" x2="19" y2="19"></line>
+            <line x1="19" y1="5" x2="5" y2="19"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div id="aiat-messages" class="aiat-messages" aria-live="polite"></div>
+
+      <form id="aiat-form" class="aiat-input-row">
+        <label for="aiat-input" class="aiat-visually-hidden">Message the assistant</label>
+        <textarea id="aiat-input" class="aiat-input" rows="1" placeholder="Type a message…"></textarea>
+        <button type="submit" id="aiat-send" class="aiat-send-btn" disabled aria-label="Send message">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <main id="main-content">
+
+    <section class="section" style="border-top:none;">
+      <div class="shell">
+        <div class="section-head">
+          <span class="eyebrow">Impact Analytics</span>
+          <h2>Info &amp; Impact</h2>
+          <p class="desc">Aggregate figures reported by field coordinators through the DAONG mobile intake app.</p>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="num">₱4.2M</div><div class="lbl">Total Relief Value Logged, 2026</div></div>
+          <div class="stat"><div class="num">18</div><div class="lbl">Active Operations Across Luzon</div></div>
+          <div class="stat"><div class="num">7,340</div><div class="lbl">Individuals Reached This Quarter</div></div>
+          <div class="stat"><div class="num">3</div><div class="lbl">Donations Currently Under Review</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section gallery-section">
+      <div class="shell">
+        <div class="section-head">
+          <span class="eyebrow">Field Verification Log</span>
+          <h2>Every checkpoint is logged on-site.</h2>
+          <p class="desc">A coordinator confirms each stage below before goods move to the next, and before it counts toward a Donation ID's timeline.</p>
+        </div>
+        <div class="grid-3">
+          <article class="path-card"><span class="tag">Checkpoint 01</span><h3>Supply Intake</h3><p>Goods logging and inventory turnover at the facility office.</p></article>
+          <article class="path-card"><span class="tag">Checkpoint 02</span><h3>Volunteer Logistics</h3><p>On-site dispatch and task assignment for turnover.</p></article>
+          <article class="path-card"><span class="tag">Checkpoint 03</span><h3>Community Assembly</h3><p>Beneficiary gathering at the care facility.</p></article>
+        </div>
+        <p class="placeholder-note" style="margin-top:24px;">Want the per-donation view? <a href="track.html" style="color:var(--gold-2);text-decoration:underline;">Track an individual Donation ID →</a></p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="shell-wide footer-inner">
+      <p>&copy; 2026 DAONG Framework &mdash; Built for <strong>Can You HackIT: The IBPAP Challenge</strong>.</p>
+      <nav class="footer-nav"><a href="index.html#topbar">Back to top</a></nav>
+    </div>
+  </footer>
+
+  <script src="js/apiService.js"></script>
+  <script src="js/donations.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/pages.js"></script>
+  <script src="js/ai-assistant-toggle.js"></script>
+</body>
+</html>
