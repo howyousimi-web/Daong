@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DAONG — Disaster Relief Accountability</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Tagalog&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/ai-assistant-toggle.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preload" as="image" href="images/hero-bg-1920.jpg" media="(min-width: 721px)">
+  <link rel="preload" as="image" href="images/hero-bg-960.jpg" media="(max-width: 720px)">
+</head>
+<body class="has-app-header" data-auth-state="unauthenticated">
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="state-banner" class="state-banner" role="status" aria-live="polite" hidden></div>
+
+  <header class="app-header" id="topbar">
+    <div class="shell-wide app-header-inner">
+      <a href="index.html" class="wordmark" aria-label="DAONG Homepage">
+        <span class="mark" lang="tl" aria-hidden="true">ᜇᜂᜅ᜔</span>
+        <span class="name">DAONG</span>
+      </a>
+      <nav class="navlinks" aria-label="Primary Navigation">
+        <a href="index.html" aria-current="page">Home</a>
+        <a href="track.html" class="nav-highlight">Track a Donation</a>
+        <a href="drives.html">Donation Drives</a>
+        <a href="info.html">Info &amp; Impact</a>
+        <a href="about.html">About Us</a>
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+      <div class="header-actions">
+        <button type="button" id="theme-toggle" class="icon-btn theme-toggle" aria-label="Toggle light/dark theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button type="button" id="bell-toggle" class="icon-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false" aria-controls="notif-panel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span id="bell-badge" class="badge-dot" hidden>0</span>
+        </button>
+        <div class="topbar-auth topbar-auth-guest">
+          <button type="button" class="btn btn-gold btn-sm" data-action="login">Log In (Demo)</button>
+        </div>
+        <div class="topbar-auth topbar-auth-user">
+          <span class="avatar" id="topbar-user-avatar">G</span>
+          <button type="button" class="btn btn-outline btn-sm" data-action="logout">Log Out</button>
+        </div>
+        <button type="button" id="hamburger-toggle" class="icon-btn" aria-label="Open menu" aria-expanded="false" aria-controls="main-drawer">
+          <span class="hamburger-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div id="app-scrim" class="scrim"></div>
+
+  <div id="notif-panel" class="notif-panel" role="dialog" aria-label="Notifications">
+    <div class="notif-panel-head"><h2>Notifications</h2></div>
+    <ul id="notif-list" class="notif-list" aria-live="polite"></ul>
+  </div>
+
+  <nav id="main-drawer" class="nav-drawer" role="dialog" aria-label="Main menu" hidden>
+    <div class="drawer-head">
+      <h2>Menu</h2>
+      <button type="button" id="drawer-close" class="icon-btn" aria-label="Close menu">✕</button>
+    </div>
+    <div class="drawer-nav">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="track.html" class="nav-highlight">Track a Donation</a>
+      <a href="drives.html">Donation Drives</a>
+      <a href="info.html">Info &amp; Impact</a>
+      <a href="about.html">About Us</a>
+      <a href="dashboard.html">Dashboard</a>
+    </div>
+    <div class="drawer-auth">
+      <div class="drawer-user" data-auth-only>
+        <span id="drawer-user-avatar" class="avatar">G</span>
+        <div>
+          <div id="drawer-user-name" class="drawer-user-name">Guest Volunteer</div>
+          <span id="drawer-user-role" class="role-pill">donor</span>
+        </div>
+      </div>
+      <button type="button" class="btn btn-outline" data-auth-only data-action="logout">Log Out</button>
+      <button type="button" class="btn btn-gold" data-guest-only data-action="login">Log In (Demo)</button>
+      <button type="button" class="drawer-admin-link" data-guest-only data-action="login-admin">Log in as coordinator (admin demo)</button>
+    </div>
+  </nav>
+
+  <div id="auth-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" hidden>
+    <div class="modal-box">
+      <h2 id="auth-modal-title">Log in required</h2>
+      <p>Create an account or log in to pledge donations.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-gold" data-action="login">Log In (Demo)</button>
+        <button type="button" id="auth-modal-close" class="btn btn-outline">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       AI ASSISTANT TOGGLE COMPONENT — see css/ai-assistant-toggle.css
+       and js/ai-assistant-toggle.js. Placeholder replies only; wire a
+       real backend into requestAssistantReply() in that JS file.
+       ================================================================ -->
+  <div id="aiat-root">
+    <button type="button" id="aiat-toggle" class="aiat-toggle"
+      aria-haspopup="dialog" aria-expanded="false" aria-controls="aiat-panel"
+      aria-label="Open AI assistant">
+      <span class="aiat-toggle-icon">
+        <svg class="aiat-icon aiat-icon-chat" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <rect x="3" y="4" width="18" height="13" rx="4"></rect>
+          <polygon points="8,17 8,21 12,17"></polygon>
+          <circle cx="8" cy="10.5" r="1.3"></circle>
+          <circle cx="12" cy="10.5" r="1.3"></circle>
+          <circle cx="16" cy="10.5" r="1.3"></circle>
+        </svg>
+        <svg class="aiat-icon aiat-icon-close" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <line x1="5" y1="5" x2="19" y2="19"></line>
+          <line x1="19" y1="5" x2="5" y2="19"></line>
+        </svg>
+      </span>
+    </button>
+
+    <div id="aiat-panel" class="aiat-panel" role="dialog" aria-modal="false" aria-labelledby="aiat-title" inert>
+      <div class="aiat-panel-head">
+        <div class="aiat-panel-heading">
+          <span class="aiat-status-dot" aria-hidden="true"></span>
+          <div>
+            <h2 id="aiat-title">AI Assistant</h2>
+            <p class="aiat-subtitle">Ask me anything</p>
+          </div>
+        </div>
+        <button type="button" id="aiat-close" class="aiat-close-btn" aria-label="Close AI assistant">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <line x1="5" y1="5" x2="19" y2="19"></line>
+            <line x1="19" y1="5" x2="5" y2="19"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div id="aiat-messages" class="aiat-messages" aria-live="polite"></div>
+
+      <form id="aiat-form" class="aiat-input-row">
+        <label for="aiat-input" class="aiat-visually-hidden">Message the assistant</label>
+        <textarea id="aiat-input" class="aiat-input" rows="1" placeholder="Type a message…"></textarea>
+        <button type="submit" id="aiat-send" class="aiat-send-btn" disabled aria-label="Send message">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <main id="main-content">
+
+    <section class="hero-section">
+      <div class="shell hero-inner">
+        <span class="eyebrow center">PH Disaster Relief Accountability</span>
+        <h1>See where relief <em>actually</em> goes.</h1>
+        <p class="sub-text">Every donation gets a unique ID the moment it's logged, then a checkpoint trail you can follow from intake to delivery — recorded in real time by field coordinators across the network.</p>
+        <div class="track-form">
+          <span class="field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
+          <input type="text" id="hero-search" placeholder="Enter a tracking ID, e.g. TN-1001" aria-label="Donation tracking ID">
+          <button type="button" class="btn btn-gold" id="hero-track-btn">Track</button>
+        </div>
+        <p class="hero-note" id="hero-note"></p>
+      </div>
+      <button type="button" class="scroll-cue" id="scroll-cue" aria-label="Scroll to learn more">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </section>
+
+    <section class="section pathways">
+      <div class="shell">
+        <div class="path-grid reveal">
+          <article class="path-card path-donor">
+            <div class="path-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg></div>
+            <span class="path-tag">For Donors</span>
+            <h2>Give, and see exactly where it goes.</h2>
+            <p>Track your donation from intake to delivery, checkpoint by checkpoint.</p>
+            <button type="button" class="btn btn-outline" id="path-donor-btn">Track a Donation &rarr;</button>
+          </article>
+          <article class="path-card path-recipient">
+            <div class="path-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9.5 20v-6h5v6"/></svg></div>
+            <span class="path-tag tag-teal">For Communities</span>
+            <h2>See what relief is coming, and when.</h2>
+            <p>Check active relief operations near you and follow their progress.</p>
+            <button type="button" class="btn btn-teal-outline" id="path-recipient-btn">View Operations &rarr;</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell-wide">
+        <div class="section-head reveal">
+          <span class="eyebrow">Right Now</span>
+          <h2>Featured Drives</h2>
+          <p class="desc">A snapshot of active campaigns. Every peso pledged here becomes its own trackable Donation ID.</p>
+        </div>
+        <div id="home-drives-grid" class="ops-grid reveal" aria-live="polite">
+          <p class="empty-state">Loading active drives&hellip;</p>
+        </div>
+        <div style="text-align:center;margin-top:28px;">
+          <a href="drives.html" class="btn btn-outline">View All Drives &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="proof">
+      <div class="shell">
+        <div class="section-head reveal">
+          <span class="eyebrow">What Gets Logged</span>
+          <h2>Every checkpoint leaves a trail.</h2>
+          <p class="desc">The system is built to capture the same kind of evidence a coordinator would collect on paper — just structured, timestamped, and attached to a Donation ID.</p>
+        </div>
+        <div class="evidence-strip reveal">
+          <div class="ev-card">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span>Timestamps</span>
+          </div>
+          <div class="ev-card">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13.5" r="3.2"/></svg>
+            <span>Photos</span>
+          </div>
+          <div class="ev-card">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>
+            <span>Documents</span>
+          </div>
+          <div class="ev-card">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h11v8H2z"/><path d="M13 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.6"/><circle cx="16.5" cy="18" r="1.6"/></svg>
+            <span>Delivery Records</span>
+          </div>
+        </div>
+        <p class="placeholder-note">Illustrative for this prototype — <b>evidence categories are part of the system design</b>, not live uploaded files yet.</p>
+
+        <div class="section-head reveal" style="margin-top:48px;">
+          <span class="eyebrow">From The Field</span>
+          <h2>What a real drive looks like.</h2>
+          <p class="desc">Photos from DAONG-affiliated intake events and facility visits — the kind of documentation the checkpoint trail is built to capture at scale.</p>
+        </div>
+        <div class="photo-grid reveal">
+          <figure class="photo-card">
+            <div class="photo-frame">
+              <img src="images/goods-table-600.jpg" srcset="images/goods-table-600.jpg 600w, images/goods-table-1200.jpg 1200w" sizes="(max-width: 800px) 90vw, 360px" alt="Two volunteers logging donated food, hygiene, and household supplies staged on a table during an intake event" loading="lazy" decoding="async" width="600" height="450">
+            </div>
+            <figcaption>
+              <span class="photo-title">Intake &amp; Logging</span>
+              <span class="photo-desc">Goods staged and counted before dispatch.</span>
+              <span class="photo-meta">TN-1001 · Jun 22, 2024 · 10:54 AM</span>
+            </figcaption>
+          </figure>
+          <figure class="photo-card">
+            <div class="photo-frame">
+              <img src="images/volunteers-lineup-600.jpg" srcset="images/volunteers-lineup-600.jpg 600w, images/volunteers-lineup-1200.jpg 1200w" sizes="(max-width: 800px) 90vw, 360px" alt="A large group of student volunteers lined up beside tables of donated hygiene and food items, ready to hand them off" loading="lazy" decoding="async" width="600" height="450">
+            </div>
+            <figcaption>
+              <span class="photo-title">Donation Hand-off</span>
+              <span class="photo-desc">Volunteers preparing a donation hand-off at a partner site.</span>
+              <span class="photo-meta">TN-1002 · Jul 19, 2024 · 2:19 PM</span>
+            </figcaption>
+          </figure>
+          <figure class="photo-card">
+            <div class="photo-frame">
+              <img src="images/onsite-a-600.jpg" srcset="images/onsite-a-600.jpg 600w, images/onsite-a-1200.jpg 1200w" sizes="(max-width: 800px) 90vw, 360px" alt="A large group of volunteers and residents of a partner care facility gathered outdoors together; faces are blurred to protect residents' privacy" loading="lazy" decoding="async" width="600" height="450">
+              <span class="photo-badge">Faces obscured for privacy</span>
+            </div>
+            <figcaption>
+              <span class="photo-title">Facility Visit</span>
+              <span class="photo-desc">A field visit to a partner care facility — residents' faces are intentionally obscured.</span>
+              <span class="photo-meta">TN-1003 · Aug 7, 2025 · 7:39 AM</span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="section-head reveal">
+          <span class="eyebrow">Impact So Far</span>
+          <h2>Aggregate figures, reported by field coordinators.</h2>
+        </div>
+        <div class="stat-row reveal">
+          <div class="stat"><div class="num">₱4.2M</div><div class="lbl">Total Relief Value Logged</div></div>
+          <div class="stat"><div class="num">18</div><div class="lbl">Active Operations, Luzon</div></div>
+          <div class="stat"><div class="num">7,340</div><div class="lbl">Individuals Reached</div></div>
+          <div class="stat"><div class="num">3</div><div class="lbl">Donations Under Review</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="shell">
+        <div class="section-head reveal">
+          <span class="eyebrow">How It Works</span>
+          <h2>From pledge to proof.</h2>
+        </div>
+        <div class="steps reveal">
+          <div class="step">
+            <span class="step-num">01</span>
+            <h3>Give or pledge</h3>
+            <p>Contribute through a Drive or make a direct pledge. Either way, it's logged as a Donation ID the moment it's received.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">02</span>
+            <h3>Track each checkpoint</h3>
+            <p>Field coordinators log intake, allocation, dispatch, and delivery in real time as goods move.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">03</span>
+            <h3>Reviewed, not assumed</h3>
+            <p>If something looks off — a delay, a weight mismatch, a route change — it's flagged for a coordinator to verify. Never an automatic accusation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-band reveal">
+      <div class="shell">
+        <h2>Have a tracking ID? See exactly where your donation stands.</h2>
+        <div class="cta-buttons">
+          <button type="button" class="btn btn-gold" id="cta-track-btn">Track a Donation</button>
+          <a href="drives.html" class="btn btn-outline">View Donation Drives</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="shell-wide footer-inner">
+      <p>&copy; 2026 DAONG Framework &mdash; Built for <strong>Can You HackIT: The IBPAP Challenge</strong>.</p>
+      <nav class="footer-nav"><a href="index.html#topbar">Back to top</a></nav>
+    </div>
+  </footer>
+
+  <script src="js/apiService.js"></script>
+  <script src="js/donations.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/pages.js"></script>
+  <script src="js/ai-assistant-toggle.js"></script>
+</body>
+</html>
