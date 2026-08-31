@@ -1,0 +1,6 @@
+@echo off
+cd /d "%~dp0daong_flutter"
+echo Fetching Flutter dependencies...
+call flutter pub get
+echo Starting DAONG Flutter client (requires the backend already running on http://localhost:3000)...
+call flutter run -d chrome

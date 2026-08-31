@@ -1,75 +1,84 @@
-# ReliefLedger
+# DAONG (monorepo)
 
-A hackathon prototype for tracing and enforcing transparency of donations
-during calamities. Every donation and disbursement is appended to a
-SHA-256 hash-chained public ledger per campaign, so anyone can verify
-nothing was silently edited after the fact.
+Two frontends, one backend:
 
-Runs out of the box against an in-memory mock backend — no setup needed
-for a demo. Real Firebase + reCAPTCHA are wired in and activate
-automatically once configured (see below); until then they no-op safely.
+```
+daong_project/
+  daong/            Node/Express backend + HTML/CSS/JS frontend
+  daong_flutter/    Flutter web client for the same backend
+```
 
-## Quick start
+Both frontends talk to the **same** API (`daong/server`) — they don't
+know about each other and never share code directly. "Merging" them
+just means keeping them in one place with one set of run instructions,
+which is what this folder is.
+
+## Run everything
+
+**1. Start the backend first** — both frontends need it running.
 
 ```bash
+cd daong
+npm install
+npm start
+```
+
+This serves the HTML frontend **and** the API together at
+**http://localhost:3000**. Leave this terminal running.
+
+**2. (Optional) Also run the Flutter client**, in a second terminal:
+
+```bash
+cd daong_flutter
 flutter pub get
 flutter run -d chrome
 ```
 
-## Architecture
+It connects to `http://localhost:3000/api/v1` — set by
+`kDaongApiBaseUrl` in `daong_flutter/lib/main.dart` if you ever move
+the backend elsewhere.
 
-- `lib/services/api_service.dart` — the interface every screen codes
-  against. Three interchangeable implementations:
-  - `mock_api_service.dart` — in-memory, seeded, zero setup (default).
-  - `firebase_api_service.dart` — Cloud Firestore backend.
-  - `http_api_service.dart` — plain REST backend, ready for a custom API.
-- `lib/main.dart` — composition root. Picks Firebase if configured,
-  otherwise falls back to mock, so a broken backend never breaks the demo.
+That's it — you don't need to run both every time. Use the HTML site
+alone, the Flutter client alone (backend still required), or both side
+by side to compare them.
 
-## Enabling Firebase
+### Windows convenience scripts
 
-1. Install the CLI once: `dart pub global activate flutterfire_cli`
-2. From the project root: `flutterfire configure` — pick/create a
-   Firebase project, select **Web**. This overwrites
-   `lib/firebase_options.dart` with your real project keys.
-3. In `lib/firebase_options.dart`, set `kIsFirebaseConfigured = true`.
-4. Enable **Cloud Firestore** in the Firebase console (start in test
-   mode for the hackathon, then lock it down with the security rules
-   sketched in `firebase_api_service.dart`).
-5. Run the app — on first launch it seeds a demo campaign into Firestore
-   automatically (`seedDemoCampaignsIfEmpty`).
+From this folder:
+- `start-backend.bat` — installs deps if needed, then starts the backend.
+- `start-flutter.bat` — installs deps if needed, then runs the Flutter client.
 
-## Enabling reCAPTCHA
+Double-click either, or run them from PowerShell/cmd. Start the backend
+one first.
 
-Two separate integrations, both already wired up:
+## Why they're separate folders, not one codebase
 
-**1. Visible checkbox on the Donate form** (`lib/widgets/recaptcha_widget.dart`)
-Ships with Google's public reCAPTCHA v2 **test** site key, so it renders
-and "passes" immediately with zero setup — good enough to demo Friday.
-Before using this anywhere real:
-- Register a site at https://www.google.com/recaptcha/admin (type: v2
-  checkbox), add your real domain.
-- Replace `kRecaptchaTestSiteKey` in `recaptcha_widget.dart` with your key.
-- Send the resulting token to your backend and verify it server-side via
-  Google's `siteverify` endpoint before trusting the submission — the
-  client-side check alone can be bypassed by anyone calling your API
-  directly.
+- `daong/public` (HTML/JS) and `daong_flutter` (Dart) are different
+  languages/runtimes — there's no way to combine their *source* into
+  one tree, only to run them against one shared backend, which they
+  already do.
+- Keeping `daong_flutter` a sibling (not nested inside `daong/`) means
+  `daong` alone is still exactly what you'd hand to a teammate who only
+  wants the backend + web frontend — see `daong/README.md`'s
+  "Using the backend on its own" section for that case.
 
-**2. Firebase App Check with reCAPTCHA v3** (`lib/main.dart`)
-Silently attests that Firestore calls come from a real browser, not a
-script — the anti-abuse layer for the *backend*, not the form.
-- Register a **v3** site at the same reCAPTCHA admin console.
-- In the Firebase console: App Check → register your web app → provider
-  reCAPTCHA v3 → paste the same site key.
-- Set `kRecaptchaV3SiteKey` in `lib/main.dart` to that key.
-- Enforce App Check on Firestore once you've confirmed real traffic
-  passes (App Check → Firestore → Enforce).
+## If you'd rather have this as one Git repo
 
-## Known limits (prototype, not production)
+```bash
+cd daong_project
+git init
+git add .
+git commit -m "Initial commit: daong backend+web, daong_flutter client"
+```
 
-- The hash chain is computed and verified client-side for the demo;
-  a production build should compute/verify it server-side (e.g. a
-  Cloud Function) so a compromised client can't fabricate a valid chain.
-- No auth yet — the "Org: Log Distribution" action should sit behind
-  Firebase Auth + role checks before this goes anywhere real.
-- reCAPTCHA tokens aren't currently verified server-side (see above).
+Both `daong/.gitignore` and `daong_flutter/.gitignore` are already in
+place (they exclude `node_modules/`, `data/db.json`, `.dart_tool/`,
+`build/`), so a single `git init` at this root correctly ignores both
+projects' generated files without any extra config.
+
+## Full documentation
+
+- [`daong/README.md`](daong/README.md) — backend API reference, Firebase
+  App Check / reCAPTCHA / Google Maps setup, architecture.
+- [`daong_flutter/README.md`](daong_flutter/README.md) — Flutter client
+  architecture, what's verified, known limits.
