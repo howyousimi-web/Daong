@@ -1,0 +1,9 @@
+node_modules/
+data/db.json
+
+# Firebase local tooling
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+*-debug.log

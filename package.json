@@ -1,0 +1,19 @@
+{
+  "name": "daong-backend",
+  "version": "1.0.0",
+  "description": "DAONG — Express backend serving the static frontend (public/) and the /api/v1 donation-tracking API it expects.",
+  "private": true,
+  "type": "commonjs",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.28.2"
+  }
+}

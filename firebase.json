@@ -1,0 +1,36 @@
+{
+  "hosting": [
+    {
+      "target": "web",
+      "public": "public",
+      "cleanUrls": true,
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [
+        { "source": "/api/**", "function": "api" }
+      ]
+    },
+    {
+      "target": "flutter",
+      "public": "../daong_flutter/build/web",
+      "ignore": ["firebase.json", "**/.*"]
+    }
+  ],
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs20"
+    }
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "hosting": { "port": 5000 },
+    "functions": { "port": 5001 },
+    "firestore": { "port": 8080 },
+    "ui": { "enabled": true, "port": 4000 },
+    "singleProjectMode": true
+  }
+}

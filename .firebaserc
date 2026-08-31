@@ -1,0 +1,13 @@
+{
+  "projects": {
+    "default": "daong-14efd"
+  },
+  "targets": {
+    "daong-14efd": {
+      "hosting": {
+        "web": ["daong-14efd"],
+        "flutter": ["daong-14efd-flutter"]
+      }
+    }
+  }
+}
