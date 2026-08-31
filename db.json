@@ -1,0 +1,183 @@
+{
+  "drives": [
+    {
+      "id": "drv-001",
+      "title": "Bulacan Flood Rapid Response",
+      "category": "food",
+      "goalPhp": 500000,
+      "raisedPhp": 360000,
+      "percentFunded": 72
+    },
+    {
+      "id": "drv-002",
+      "title": "Special Care Facility Support",
+      "category": "medical",
+      "goalPhp": 350000,
+      "raisedPhp": 308000,
+      "percentFunded": 88
+    },
+    {
+      "id": "drv-003",
+      "title": "Region IV-A Shelter Kits",
+      "category": "shelter",
+      "goalPhp": 420000,
+      "raisedPhp": 126000,
+      "percentFunded": 30
+    },
+    {
+      "id": "drv-004",
+      "title": "Marikina Flood Response",
+      "category": "food",
+      "goalPhp": 300000,
+      "raisedPhp": 84000,
+      "percentFunded": 28
+    }
+  ],
+  "donations": [
+    {
+      "id": "TN-1001",
+      "driveId": "drv-001",
+      "donor": "Anonymous Donor",
+      "amountPhp": 50000,
+      "category": "Cash Relief",
+      "org": "Bulacan Disaster Response",
+      "date": "2026-08-15",
+      "stageIndex": 3,
+      "status": "flagged",
+      "flagReason": {
+        "hoursSinceLastCheckpoint": 31,
+        "expectedWeight": 8.4,
+        "currentWeight": 6.9,
+        "routeDeviationKm": 3.8
+      },
+      "checkpoints": [
+        {
+          "stage": "Received",
+          "loc": "Bulacan Central Warehouse",
+          "time": "Aug 15, 08:02",
+          "lat": 14.8433,
+          "lng": 120.8113,
+          "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "7bc629b836b14ce70b0c93e144237e3ab1689be26bce25b73f88fd61342b60ba"
+        },
+        {
+          "stage": "Allocated",
+          "loc": "Food & Medicine Allocation Desk",
+          "time": "Aug 15, 10:15",
+          "lat": 14.845,
+          "lng": 120.813,
+          "previousHash": "7bc629b836b14ce70b0c93e144237e3ab1689be26bce25b73f88fd61342b60ba",
+          "hash": "347c822c692cd574c3285f616f5235629b8fec4d88c0b8f4ffedf68d4bed0f36"
+        },
+        {
+          "stage": "Dispatched",
+          "loc": "Loading Bay 3",
+          "time": "Aug 15, 13:40",
+          "lat": 14.847,
+          "lng": 120.815,
+          "previousHash": "347c822c692cd574c3285f616f5235629b8fec4d88c0b8f4ffedf68d4bed0f36",
+          "hash": "87cc4b7ccd2cdd3496a8598b11b0decdb4d5b3cd766cf519248bf725518231e9"
+        },
+        {
+          "stage": "In Transit",
+          "loc": "Checkpoint — San Rafael Junction",
+          "time": "Aug 15, 16:05",
+          "lat": 14.9155,
+          "lng": 120.947,
+          "previousHash": "87cc4b7ccd2cdd3496a8598b11b0decdb4d5b3cd766cf519248bf725518231e9",
+          "hash": "392f041e30e94ab86e005ba272be2a0fc689c3ff1aa98c8bdf6c873eac74d880"
+        }
+      ]
+    },
+    {
+      "id": "TN-1002",
+      "driveId": "drv-004",
+      "donor": "Meycauayan Community Drive",
+      "amountPhp": 18500,
+      "category": "Food",
+      "org": "Marikina Flood Response",
+      "date": "2026-08-14",
+      "stageIndex": 4,
+      "status": "verified",
+      "checkpoints": [
+        {
+          "stage": "Received",
+          "loc": "Marikina Sports Complex",
+          "time": "Aug 14, 07:20",
+          "lat": 14.6349,
+          "lng": 121.1029,
+          "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "59e477dc030076e9d885e2e6aa58f9e7aeeff8d729b9371093916c8564bb8ac9"
+        },
+        {
+          "stage": "Allocated",
+          "loc": "Relief Goods Allocation",
+          "time": "Aug 14, 09:00",
+          "lat": 14.636,
+          "lng": 121.104,
+          "previousHash": "59e477dc030076e9d885e2e6aa58f9e7aeeff8d729b9371093916c8564bb8ac9",
+          "hash": "69fe08333e8e1fec56d24a53452f496c441eb4c310c21f9ebc6d2940fa8eef5a"
+        },
+        {
+          "stage": "Dispatched",
+          "loc": "Loading Bay 1",
+          "time": "Aug 14, 11:30",
+          "lat": 14.637,
+          "lng": 121.105,
+          "previousHash": "69fe08333e8e1fec56d24a53452f496c441eb4c310c21f9ebc6d2940fa8eef5a",
+          "hash": "eb4742a7f1b2e6d9ffe3185869b0b2786a08e2c9f97b0465834a2a41922e2512"
+        },
+        {
+          "stage": "In Transit",
+          "loc": "Barangay Sto. Niño Access Rd.",
+          "time": "Aug 14, 13:10",
+          "lat": 14.65,
+          "lng": 121.11,
+          "previousHash": "eb4742a7f1b2e6d9ffe3185869b0b2786a08e2c9f97b0465834a2a41922e2512",
+          "hash": "942efb17d958c8638473c705a463bb503b34b571231f2ebfb2f7e01622f7cf26"
+        },
+        {
+          "stage": "Delivered",
+          "loc": "Barangay Sto. Niño Evac. Center",
+          "time": "Aug 14, 15:45",
+          "lat": 14.652,
+          "lng": 121.112,
+          "previousHash": "942efb17d958c8638473c705a463bb503b34b571231f2ebfb2f7e01622f7cf26",
+          "hash": "698813181eed62fd474748b794f1a5b0716d77c2f42037029771aa9a2b45f6c8"
+        }
+      ]
+    },
+    {
+      "id": "TN-1003",
+      "driveId": "drv-001",
+      "donor": "St. Peter Parish Drive",
+      "amountPhp": 9200,
+      "category": "Medicine",
+      "org": "Bulacan Disaster Response",
+      "date": "2026-08-15",
+      "stageIndex": 2,
+      "status": "transit",
+      "checkpoints": [
+        {
+          "stage": "Received",
+          "loc": "Bulacan Central Warehouse",
+          "time": "Aug 15, 09:10",
+          "lat": 14.8433,
+          "lng": 120.8113,
+          "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "9e4aa3b91d4698b7371e5706a992150837124bf31ed0c573df895233c3a68b02"
+        },
+        {
+          "stage": "Allocated",
+          "loc": "Medicine Allocation Desk",
+          "time": "Aug 15, 11:00",
+          "lat": 14.845,
+          "lng": 120.813,
+          "previousHash": "9e4aa3b91d4698b7371e5706a992150837124bf31ed0c573df895233c3a68b02",
+          "hash": "cb1c92fc0c8bad912ec2763a18c60675c02a41ee85fd6bc967fd0ca2293361c5"
+        }
+      ]
+    }
+  ],
+  "donationIdCounter": 1003
+}
