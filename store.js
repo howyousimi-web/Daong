@@ -1,26 +1,22 @@
 /**
- * store.js
+ * store.js (Cloud Functions version)
  * ---------------------------------------------------------------
- * The DAONG data layer: Drives and Donations, persisted to a JSON
- * file on disk (data/db.json) so state survives a server restart —
- * unlike the frontend's own in-browser mock, which resets on reload.
+ * Same job as ../server/store.js — Drives, Donations, and the
+ * hash-chained checkpoint logic — but backed by Cloud Firestore
+ * instead of a local JSON file. Cloud Functions instances don't
+ * share a filesystem and aren't guaranteed to stay warm, so a flat
+ * file (fine for local `npm start`) can't work once this is actually
+ * deployed; Firestore is the durable, shared store every instance
+ * reads/writes the same data from.
  *
- * Seeded with the exact same demo data the frontend's apiService.js
- * mock ships with, so switching from "mock" to "real backend" is
- * seamless: same drive IDs, same TN-100x tracking IDs, same story.
- *
- * Every checkpoint appended to a donation is chained with a SHA-256
- * hash of the previous checkpoint + its own data (same tamper-evident
- * pattern as the original ReliefLedger prototype this project grew
- * out of). The frontend doesn't render these fields, but they make
- * the "your donation can't be silently rewritten" claim verifiable
- * rather than just asserted — see verifyDonationChain() below.
+ * The hash-chain logic itself (SHA-256, genesis hash, chaining
+ * function) is identical to server/store.js on purpose — the same
+ * "your donation can't be silently rewritten" guarantee holds
+ * whichever backend is actually running.
  * --------------------------------------------------------------- */
-const fs = require('fs');
-const path = require('path');
 const crypto = require('crypto');
+const admin = require('firebase-admin');
 
-const DB_PATH = path.join(__dirname, '..', 'data', 'db.json');
 const STAGES = ['Received', 'Allocated', 'Dispatched', 'In Transit', 'Delivered'];
 const GENESIS_HASH = '0'.repeat(64);
 
@@ -38,7 +34,17 @@ function checkpointHash(previousHash, donationId, cp) {
   return crypto.createHash('sha256').update(payload).digest('hex');
 }
 
-function seed() {
+function chainCheckpoints(donationId, checkpoints, startingPreviousHash) {
+  let previousHash = startingPreviousHash || GENESIS_HASH;
+  return checkpoints.map((cp) => {
+    const hash = checkpointHash(previousHash, donationId, cp);
+    const stamped = { ...cp, previousHash, hash };
+    previousHash = hash;
+    return stamped;
+  });
+}
+
+function seedData() {
   const drives = [
     { id: 'drv-001', title: 'Bulacan Flood Rapid Response', category: 'food', goalPhp: 500000, raisedPhp: 360000, percentFunded: 72 },
     { id: 'drv-002', title: 'Special Care Facility Support', category: 'medical', goalPhp: 350000, raisedPhp: 308000, percentFunded: 88 },
@@ -80,77 +86,86 @@ function seed() {
   ];
 
   const donations = rawDonations.map((d) => ({ ...d, checkpoints: chainCheckpoints(d.id, d.checkpoints) }));
-
   return { drives, donations, donationIdCounter: 1003 };
 }
 
-// Stamps each checkpoint in a fresh list with previousHash/hash, chained
-// from GENESIS_HASH — used both for seeding and for appending one new
-// checkpoint to an existing (already-chained) list.
-function chainCheckpoints(donationId, checkpoints, startingPreviousHash) {
-  let previousHash = startingPreviousHash || GENESIS_HASH;
-  return checkpoints.map((cp) => {
-    const hash = checkpointHash(previousHash, donationId, cp);
-    const stamped = { ...cp, previousHash, hash };
-    previousHash = hash;
-    return stamped;
-  });
-}
-
-class Store {
+class FirestoreStore {
   constructor() {
-    this._load();
+    if (!admin.apps.length) admin.initializeApp();
+    this.db = admin.firestore();
   }
 
-  _load() {
-    try {
-      const raw = fs.readFileSync(DB_PATH, 'utf8');
-      this.data = JSON.parse(raw);
-    } catch {
-      this.data = seed();
-      this._save();
-    }
+  async _ensureSeeded() {
+    const snap = await this.db.collection('drives').limit(1).get();
+    if (!snap.empty) return;
+    await this.reset();
   }
 
-  _save() {
-    fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
-    fs.writeFileSync(DB_PATH, JSON.stringify(this.data, null, 2), 'utf8');
+  async reset() {
+    const { drives, donations, donationIdCounter } = seedData();
+    const batch = this.db.batch();
+
+    // Clear existing docs first so reset-demo genuinely resets, not just adds.
+    const [existingDrives, existingDonations] = await Promise.all([
+      this.db.collection('drives').get(),
+      this.db.collection('donations').get(),
+    ]);
+    existingDrives.forEach((doc) => batch.delete(doc.ref));
+    existingDonations.forEach((doc) => batch.delete(doc.ref));
+
+    drives.forEach((d) => batch.set(this.db.collection('drives').doc(d.id), d));
+    donations.forEach((d) => batch.set(this.db.collection('donations').doc(d.id), d));
+    batch.set(this.db.collection('meta').doc('counters'), { donationIdCounter });
+
+    await batch.commit();
+    return { drives, donations };
   }
 
-  reset() {
-    this.data = seed();
-    this._save();
-    return { drives: this.data.drives, donations: this.data.donations };
+  async getDrives() {
+    await this._ensureSeeded();
+    const snap = await this.db.collection('drives').get();
+    return snap.docs.map((d) => d.data());
   }
 
-  getDrives() {
-    return this.data.drives;
+  async getDonations() {
+    await this._ensureSeeded();
+    const snap = await this.db.collection('donations').get();
+    return snap.docs.map((d) => d.data());
   }
 
-  getDonations() {
-    return this.data.donations;
+  async findDrive(driveId) {
+    const doc = await this.db.collection('drives').doc(driveId).get();
+    return doc.exists ? doc.data() : null;
   }
 
-  findDrive(driveId) {
-    return this.data.drives.find((d) => d.id === driveId) || null;
-  }
-
-  findDonation(rawId) {
+  async findDonation(rawId) {
     const normalized = String(rawId).toUpperCase();
-    return this.data.donations.find((d) => d.id.toUpperCase() === normalized) || null;
+    const doc = await this.db.collection('donations').doc(normalized).get();
+    return doc.exists ? doc.data() : null;
   }
 
-  bumpDriveTotal(driveId, amountPhp) {
-    const drive = this.findDrive(driveId);
-    if (!drive) return null;
-    drive.raisedPhp += Number(amountPhp) || 0;
-    drive.percentFunded = Math.min(100, Math.round((drive.raisedPhp / drive.goalPhp) * 100));
-    return drive;
+  async bumpDriveTotal(driveId, amountPhp) {
+    const ref = this.db.collection('drives').doc(driveId);
+    return this.db.runTransaction(async (tx) => {
+      const doc = await tx.get(ref);
+      if (!doc.exists) return null;
+      const drive = doc.data();
+      drive.raisedPhp += Number(amountPhp) || 0;
+      drive.percentFunded = Math.min(100, Math.round((drive.raisedPhp / drive.goalPhp) * 100));
+      tx.set(ref, drive);
+      return drive;
+    });
   }
 
-  createDonation({ driveId, donor, amountPhp, category, org, intakeLocation, lat, lng }) {
-    this.data.donationIdCounter += 1;
-    const id = `TN-${this.data.donationIdCounter}`;
+  async createDonation({ driveId, donor, amountPhp, category, org, intakeLocation, lat, lng }) {
+    const counterRef = this.db.collection('meta').doc('counters');
+    const id = await this.db.runTransaction(async (tx) => {
+      const doc = await tx.get(counterRef);
+      const next = ((doc.exists && doc.data().donationIdCounter) || 1003) + 1;
+      tx.set(counterRef, { donationIdCounter: next }, { merge: true });
+      return `TN-${next}`;
+    });
+
     const now = new Date();
     const firstCheckpoint = {
       stage: 'Received', loc: intakeLocation || 'Central Intake Warehouse', time: phTimestamp(now),
@@ -168,39 +183,36 @@ class Store {
       status: 'transit',
       checkpoints: chainCheckpoints(id, [firstCheckpoint]),
     };
-    this.data.donations.push(record);
-    this._save();
+    await this.db.collection('donations').doc(id).set(record);
     return record;
   }
 
-  addCheckpoint(rawId, { loc, lat, lng } = {}) {
-    const record = this.findDonation(rawId);
-    if (!record) return null;
-    record.stageIndex = Math.min(record.stageIndex + 1, STAGES.length - 1);
-    const nextStage = STAGES[record.stageIndex];
-    const previousHash = record.checkpoints.length
-      ? record.checkpoints[record.checkpoints.length - 1].hash
-      : GENESIS_HASH;
-    const [stamped] = chainCheckpoints(
-      record.id,
-      [{
-        stage: nextStage, loc: loc || 'Field Checkpoint (manual log)', time: phTimestamp(new Date()),
-        lat: lat ?? null, lng: lng ?? null,
-      }],
-      previousHash,
-    );
-    record.checkpoints.push(stamped);
-    if (nextStage === 'Delivered') record.status = 'verified';
-    this._save();
-    return record;
+  async addCheckpoint(rawId, { loc, lat, lng } = {}) {
+    const normalized = String(rawId).toUpperCase();
+    const ref = this.db.collection('donations').doc(normalized);
+    return this.db.runTransaction(async (tx) => {
+      const doc = await tx.get(ref);
+      if (!doc.exists) return null;
+      const record = doc.data();
+      record.stageIndex = Math.min(record.stageIndex + 1, STAGES.length - 1);
+      const nextStage = STAGES[record.stageIndex];
+      const previousHash = record.checkpoints.length
+        ? record.checkpoints[record.checkpoints.length - 1].hash
+        : GENESIS_HASH;
+      const [stamped] = chainCheckpoints(
+        record.id,
+        [{ stage: nextStage, loc: loc || 'Field Checkpoint (manual log)', time: phTimestamp(new Date()), lat: lat ?? null, lng: lng ?? null }],
+        previousHash,
+      );
+      record.checkpoints.push(stamped);
+      if (nextStage === 'Delivered') record.status = 'verified';
+      tx.set(ref, record);
+      return record;
+    });
   }
 
-  // Recomputes every checkpoint hash for a donation and confirms the
-  // chain still links correctly — the same "Verify Chain" proof the
-  // original ReliefLedger UI exposed, available here as an API for
-  // an admin tool or future UI to call.
-  verifyDonationChain(rawId) {
-    const record = this.findDonation(rawId);
+  async verifyDonationChain(rawId) {
+    const record = await this.findDonation(rawId);
     if (!record) return null;
     let expectedPrev = GENESIS_HASH;
     for (let i = 0; i < record.checkpoints.length; i += 1) {
@@ -215,4 +227,4 @@ class Store {
   }
 }
 
-module.exports = { Store, STAGES };
+module.exports = { FirestoreStore, STAGES };

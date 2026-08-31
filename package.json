@@ -1,19 +1,19 @@
 {
-  "name": "daong-backend",
+  "name": "daong-functions",
   "version": "1.0.0",
-  "description": "DAONG — Express backend serving the static frontend (public/) and the /api/v1 donation-tracking API it expects.",
+  "description": "DAONG backend, packaged as a Firebase Cloud Function. Firestore-backed (server/ next door uses a flat JSON file instead, for zero-setup local dev — this directory is the deployable, durable version).",
   "private": true,
-  "type": "commonjs",
-  "main": "server/server.js",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "node --watch server/server.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.19.2"
-  },
-  "devDependencies": {
-    "firebase-tools": "^15.28.2"
+    "express": "^4.19.2",
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.3.1"
   }
 }
