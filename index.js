@@ -45,7 +45,7 @@ const asyncRoute = (fn) => (req, res) => {
   });
 };
 
-api.post('/auth/login', asyncRoute(async (req, res) => {
+api.post('/auth/login', requireRecaptcha, asyncRoute(async (req, res) => {
   const role = req.body && req.body.role === 'admin' ? 'admin' : 'donor';
   const { token, user } = await issueToken(role);
   res.json({ token, user });

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DAONG Admin Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    
+    header {
+      background: linear-gradient(135deg, #c41e3a 0%, #a01830 100%);
+      color: white;
+      padding: 30px 20px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    header h1 { font-size: 28px; margin-bottom: 5px; }
+    header p { opacity: 0.9; font-size: 14px; }
+    
+    .login-form {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: 50px auto;
+    }
+    .login-form h2 { margin-bottom: 20px; color: #c41e3a; }
+    .login-form .form-group { margin-bottom: 15px; }
+    .login-form label { display: block; margin-bottom: 5px; font-weight: 500; }
+    .login-form input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    .login-form button { width: 100%; padding: 10px; background: #c41e3a; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+    .login-form button:hover { background: #a01830; }
+    .login-form .error { color: #d32f2f; font-size: 14px; margin-top: 10px; }
+    
+    .dashboard { display: none; }
+    .dashboard.active { display: block; }
+    
+    .header-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .logout-btn { padding: 8px 16px; background: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .logout-btn:hover { background: #c41e3a; }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .stat-card h3 { color: #c41e3a; font-size: 14px; margin-bottom: 10px; }
+    .stat-card .value { font-size: 32px; font-weight: bold; }
+    .stat-card .subtext { color: #666; font-size: 13px; margin-top: 5px; }
+    
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    .tab { padding: 12px 20px; cursor: pointer; border: none; background: none; font-size: 14px; font-weight: 500; color: #666; border-bottom: 3px solid transparent; }
+    .tab:hover { color: #c41e3a; }
+    .tab.active { color: #c41e3a; border-bottom-color: #c41e3a; }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    .donations-list {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .donations-list table { width: 100%; border-collapse: collapse; }
+    .donations-list th {
+      background: #f5f5f5;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    .donations-list td { padding: 15px; border-bottom: 1px solid #e0e0e0; }
+    .donations-list tr:hover { background: #f9f9f9; }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-badge.transit { background: #fff3cd; color: #856404; }
+    .status-badge.flagged { background: #f8d7da; color: #721c24; }
+    .status-badge.verified { background: #d4edda; color: #155724; }
+    
+    .drives-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .drive-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .drive-card h3 { color: #c41e3a; margin-bottom: 10px; }
+    .drive-card .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .drive-card .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #c41e3a, #ff6b6b);
+    }
+    .drive-card .stats { display: flex; justify-content: space-between; font-size: 13px; }
+    .drive-card .stats span { color: #666; }
+    
+    .action-btn {
+      padding: 6px 12px;
+      margin-right: 5px;
+      background: #c41e3a;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .action-btn:hover { background: #a01830; }
+    .action-btn.secondary { background: #666; }
+    .action-btn.secondary:hover { background: #444; }
+    
+    .audit-log {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .audit-entry {
+      padding: 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .audit-entry:last-child { border-bottom: none; }
+    .audit-entry .action { font-weight: 600; color: #c41e3a; }
+    .audit-entry .user { color: #666; font-size: 13px; }
+    .audit-entry .timestamp { color: #999; font-size: 12px; }
+    
+    .no-data {
+      padding: 40px 20px;
+      text-align: center;
+      color: #999;
+    }
+    
+    .loading { text-align: center; padding: 20px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Login Form -->
+    <div id="loginForm" class="login-form">
+      <h2>Admin Login</h2>
+      <div class="form-group">
+        <label>Role</label>
+        <select id="roleSelect" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+          <option value="admin">Admin / Coordinator</option>
+          <option value="donor">Donor (Demo)</option>
+        </select>
+      </div>
+      <button onclick="login()">Login</button>
+      <div id="loginError" class="error"></div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+      <header>
+        <div class="header-actions">
+          <div>
+            <h1>Admin Dashboard</h1>
+            <p>Disaster Relief Accountability Overview</p>
+          </div>
+          <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+      </header>
+
+      <!-- Stats -->
+      <div id="statsContainer" class="stats-grid loading">Loading stats...</div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('donations')">Donations</button>
+        <button class="tab" onclick="switchTab('drives')">Drives</button>
+        <button class="tab" onclick="switchTab('audit')">Audit Log</button>
+      </div>
+
+      <!-- Donations Tab -->
+      <div id="donationsTab" class="tab-content active">
+        <div id="donationsList" class="donations-list loading">Loading...</div>
+      </div>
+
+      <!-- Drives Tab -->
+      <div id="drivesTab" class="tab-content">
+        <div id="drivesList" class="drives-grid loading">Loading...</div>
+      </div>
+
+      <!-- Audit Tab -->
+      <div id="auditTab" class="tab-content">
+        <div id="auditList" class="audit-log loading">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api/v1';
+    let currentToken = null;
+    let currentUser = null;
+    let donationsData = [];
+
+    async function login() {
+      const role = document.getElementById('roleSelect').value;
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role, email: 'admin@daong.org.ph', password: 'demo' }),
+        });
+        const data = await res.json();
+        if (!data.token) throw new Error(data.error || 'Login failed');
+        currentToken = data.token;
+        currentUser = data.user;
+        showDashboard();
+        loadStats();
+        loadDonations();
+        loadDrives();
+      } catch (err) {
+        document.getElementById('loginError').textContent = String(err.message);
+      }
+    }
+
+    function logout() {
+      currentToken = null;
+      currentUser = null;
+      showLogin();
+    }
+
+    function showLogin() {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('dashboard').classList.remove('active');
+    }
+
+    function showDashboard() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('dashboard').classList.add('active');
+    }
+
+    async function loadStats() {
+      if (currentUser.role !== 'admin') return;
+      try {
+        const res = await fetch(`${API_BASE}/admin/stats`, {
+          headers: { 'Authorization': `Bearer ${currentToken}` },
+        });
+        const stats = await res.json();
+        const html = `
+          <div class="stat-card">
+            <h3>Total Donations</h3>
+            <div class="value">${stats.totalDonations}</div>
+            <div class="subtext">across all drives</div>
+          </div>
+          <div class="stat-card">
+            <h3>Total Raised</h3>
+            <div class="value">₱${stats.totalRaised.toLocaleString()}</div>
+            <div class="subtext">in PHP</div>
+          </div>
+          <div class="stat-card">
+            <h3>Verified</h3>
+            <div class="value">${stats.byStatus.verified}</div>
+            <div class="subtext">delivered & verified</div>
+          </div>
+          <div class="stat-card">
+            <h3>In Transit</h3>
+            <div class="value">${stats.byStatus.transit}</div>
+            <div class="subtext">currently moving</div>
+          </div>
+          <div class="stat-card">
+            <h3>Flagged</h3>
+            <div class="value">${stats.byStatus.flagged}</div>
+            <div class="subtext">requires review</div>
+          </div>
+        `;
+        document.getElementById('statsContainer').innerHTML = html;
+      } catch (err) {
+        document.getElementById('statsContainer').innerHTML = `<div class="no-data">Error: ${err.message}</div>`;
+      }
+    }
+
+    async function loadDonations() {
+      try {
+        const res = await fetch(`${API_BASE}/donations`);
+        const data = await res.json();
+        donationsData = data.donations || [];
+        renderDonations();
+      } catch (err) {
+        document.getElementById('donationsList').innerHTML = `<div class="no-data">Error: ${err.message}</div>`;
+      }
+    }
+
+    function renderDonations() {
+      if (!donationsData.length) {
+        document.getElementById('donationsList').innerHTML = '<div class="no-data">No donations yet</div>';
+        return;
+      }
+      const rows = donationsData.map(d => `
+        <tr>
+          <td>${d.id}</td>
+          <td>${d.donor}</td>
+          <td>₱${d.amountPhp.toLocaleString()}</td>
+          <td>${d.category}</td>
+          <td><span class="status-badge ${d.status}">${d.status}</span></td>
+          <td>${d.date}</td>
+          <td><button class="action-btn" onclick="viewDonation('${d.id}')">View</button></td>
+        </tr>
+      `).join('');
+      const html = `
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Donor</th>
+              <th>Amount</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+      document.getElementById('donationsList').innerHTML = html;
+    }
+
+    async function loadDrives() {
+      try {
+        const res = await fetch(`${API_BASE}/drives`);
+        const data = await res.json();
+        renderDrives(data.drives || []);
+      } catch (err) {
+        document.getElementById('drivesList').innerHTML = `<div class="no-data">Error: ${err.message}</div>`;
+      }
+    }
+
+    function renderDrives(drives) {
+      if (!drives.length) {
+        document.getElementById('drivesList').innerHTML = '<div class="no-data">No drives</div>';
+        return;
+      }
+      const html = drives.map(d => `
+        <div class="drive-card">
+          <h3>${d.title}</h3>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${d.percentFunded}%"></div>
+          </div>
+          <div class="stats">
+            <span>₱${d.raisedPhp.toLocaleString()} / ₱${d.goalPhp.toLocaleString()}</span>
+            <span>${d.percentFunded}% funded</span>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('drivesList').innerHTML = html;
+    }
+
+    async function viewDonation(id) {
+      try {
+        const res = await fetch(`${API_BASE}/donations/${id}/audit`, {
+          headers: { 'Authorization': `Bearer ${currentToken}` },
+        });
+        const data = await res.json();
+        const donation = donationsData.find(d => d.id === id);
+        if (!donation) return;
+        
+        let auditHtml = data.auditLog.map(entry => `
+          <div class="audit-entry">
+            <div class="action">${entry.action}</div>
+            <div class="user">By: ${entry.user}</div>
+            <div class="timestamp">${new Date(entry.timestamp).toLocaleString()}</div>
+          </div>
+        `).join('');
+        
+        document.getElementById('auditList').innerHTML = auditHtml || '<div class="no-data">No audit entries</div>';
+        switchTab('audit');
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function loadAudit() {
+      let html = '';
+      for (const donation of donationsData) {
+        try {
+          const res = await fetch(`${API_BASE}/donations/${donation.id}/audit`, {
+            headers: { 'Authorization': `Bearer ${currentToken}` },
+          });
+          const data = await res.json();
+          if (data.auditLog) {
+            html += `<h3 style="margin-top: 20px; color: #c41e3a;">${donation.id}</h3>`;
+            html += data.auditLog.map(entry => `
+              <div class="audit-entry">
+                <div class="action">${entry.action}</div>
+                <div class="user">By: ${entry.user}</div>
+                <div class="timestamp">${new Date(entry.timestamp).toLocaleString()}</div>
+              </div>
+            `).join('');
+          }
+        } catch (_err) {}
+      }
+      document.getElementById('auditList').innerHTML = html || '<div class="no-data">No audit entries</div>';
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+      document.getElementById(tab + 'Tab').classList.add('active');
+      
+      if (tab === 'audit' && currentToken) {
+        loadAudit();
+      }
+    }
+
+    // Check if already logged in
+    window.addEventListener('load', () => {
+      const token = localStorage.getItem('daongToken');
+      if (token) {
+        currentToken = token;
+        currentUser = JSON.parse(localStorage.getItem('daongUser') || '{}');
+        showDashboard();
+        loadStats();
+        loadDonations();
+        loadDrives();
+      }
+    });
+
+    // Save token to localStorage
+    const originalLogin = login;
+    login = async function() {
+      await originalLogin();
+      if (currentToken) {
+        localStorage.setItem('daongToken', currentToken);
+        localStorage.setItem('daongUser', JSON.stringify(currentUser));
+      }
+    };
+
+    // Clear localStorage on logout
+    const originalLogout = logout;
+    logout = function() {
+      localStorage.removeItem('daongToken');
+      localStorage.removeItem('daongUser');
+      originalLogout();
+    };
+  </script>
+</body>
+</html>

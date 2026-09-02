@@ -1,50 +1,101 @@
 /**
  * recaptcha.js
  * ---------------------------------------------------------------
- * Server-side verification for the reCAPTCHA v2 checkbox shown on
- * the frontend's pledge/donation forms. A token solved in the
- * browser is meaningless on its own — anyone can skip the widget
- * and call the API directly — so this module re-checks that token
- * against Google's siteverify endpoint before a pledge/donation is
- * accepted.
+ * Google reCAPTCHA Enterprise verification using the official
+ * Node.js client pattern exactly like the sample you provided.
  *
- * Ships with Google's published TEST secret key, paired with the
- * TEST site key already wired into the frontend — that pair always
- * verifies successfully, so pledges work out of the box with zero
- * setup. Swap RECAPTCHA_SECRET_KEY (env var) for your own secret key
- * from https://www.google.com/recaptcha/admin before this goes
- * anywhere real; the test pair accepts everyone, bots included.
+ * If REQUIRE_RECAPTCHA=false or credentials are missing in dev,
+ * verification becomes a no-op. Before deploying to production,
+ * ensure GOOGLE_APPLICATION_CREDENTIALS or RECAPTCHA_PROJECT_ID
+ * environment variables are properly set.
  * --------------------------------------------------------------- */
-const TEST_SECRET_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
-const SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY || TEST_SECRET_KEY;
+const { RecaptchaEnterpriseServiceClient } = require('@google-cloud/recaptcha-enterprise');
 
-async function verifyRecaptcha(token) {
+const PROJECT_ID = process.env.RECAPTCHA_PROJECT_ID || 'daong-tanaw';
+const SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '6Le1OKMtAAAAAPbnCUTU2dc1wRf4Qt3Hpb8wjCvS';
+const REQUIRE_RECAPTCHA = process.env.REQUIRE_RECAPTCHA !== 'false';
+
+let clientInstance = null;
+
+function getClient() {
+  if (!clientInstance) {
+    clientInstance = new RecaptchaEnterpriseServiceClient();
+  }
+  return clientInstance;
+}
+
+async function verifyRecaptcha(token, expectedAction = 'LOGIN') {
+  // In dev mode or if disabled, skip verification
+  if (!REQUIRE_RECAPTCHA) {
+    return { ok: true, reason: 'verification_disabled', action: expectedAction };
+  }
+
   if (!token) return { ok: false, reason: 'missing_token' };
+
   try {
-    const res = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret: SECRET_KEY, response: token }),
-    });
-    const data = await res.json();
-    return data.success ? { ok: true } : { ok: false, reason: 'failed_verification', errors: data['error-codes'] };
+    const client = getClient();
+    const projectPath = client.projectPath(PROJECT_ID);
+
+    const request = {
+      assessment: {
+        event: {
+          token,
+          siteKey: SITE_KEY,
+        },
+      },
+      parent: projectPath,
+    };
+
+    const [response] = await client.createAssessment(request);
+
+    if (!response.tokenProperties.valid) {
+      return {
+        ok: false,
+        reason: 'invalid_token',
+        invalidReason: response.tokenProperties.invalidReason,
+      };
+    }
+
+    if (response.tokenProperties.action !== expectedAction) {
+      return {
+        ok: false,
+        reason: 'action_mismatch',
+        expectedAction,
+        actualAction: response.tokenProperties.action,
+      };
+    }
+
+    return {
+      ok: true,
+      score: response.riskAnalysis && response.riskAnalysis.score,
+      reasons: response.riskAnalysis && response.riskAnalysis.reasons,
+      action: response.tokenProperties.action,
+    };
   } catch (err) {
-    // Google unreachable — fail closed on writes that matter, but don't
-    // let a flaky network call take down the whole demo; the caller
-    // decides what "ok: false" means for that route.
-    return { ok: false, reason: 'verification_unavailable', message: String(err) };
+    // If credentials are missing/invalid in development, log a warning
+    // but don't block the request. In production, this should fail.
+    const isDevError = err.message.includes('GOOGLE_APPLICATION_CREDENTIALS') || 
+                       err.message.includes('not authorized');
+    if (isDevError && process.env.NODE_ENV !== 'production') {
+      console.warn('[recaptcha] Credentials missing (dev mode):', err.message);
+      return { ok: true, reason: 'verification_skipped_dev', action: expectedAction };
+    }
+    return {
+      ok: false,
+      reason: 'verification_unavailable',
+      message: String(err),
+    };
   }
 }
 
-// Express middleware: expects `recaptchaToken` in the JSON body. Skips
-// enforcement entirely if REQUIRE_RECAPTCHA=false (handy for automated
-// testing / curl-ing the API directly during development).
 function requireRecaptcha(req, res, next) {
-  if (process.env.REQUIRE_RECAPTCHA === 'false') return next();
+  if (!REQUIRE_RECAPTCHA) return next();
   const token = req.body && req.body.recaptchaToken;
-  verifyRecaptcha(token).then((result) => {
+  verifyRecaptcha(token, 'LOGIN').then((result) => {
     if (result.ok) return next();
     res.status(400).json({ error: 'recaptcha_failed', ...result });
+  }).catch((err) => {
+    res.status(500).json({ error: 'recaptcha_error', message: String(err) });
   });
 }
 

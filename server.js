@@ -32,6 +32,8 @@ const { Store, STAGES } = require('./store');
 const { issueToken, requireAuth } = require('./auth');
 const { requireRecaptcha } = require('./recaptcha');
 const { requireAppCheck } = require('./appCheck');
+const { rateLimiter } = require('./rate-limiter');
+const { validateDonation, validateCheckpoint } = require('./validators');
 
 const PORT = process.env.PORT || 3000;
 const store = new Store();
@@ -42,6 +44,9 @@ const app = express();
 //   app.use(cors({ origin: 'https://your-frontend-domain.com' }));
 app.use(cors());
 app.use(express.json());
+
+// Rate limiting applied to the whole API
+app.use('/api/v1', rateLimiter);
 
 // Firebase App Check — no-op unless ENABLE_APP_CHECK=true (see appCheck.js).
 // Applied to the whole API so it can eventually cover every route without
@@ -55,7 +60,7 @@ const api = express.Router();
 // login UI (see AuthStateManager.login() in public/js/app.js). Returns
 // { token, user }. Send the token back as `Authorization: Bearer <token>`
 // on the write routes below.
-api.post('/auth/login', (req, res) => {
+api.post('/auth/login', requireRecaptcha, (req, res) => {
   const role = req.body && req.body.role === 'admin' ? 'admin' : 'donor';
   const { token, user } = issueToken(role);
   res.json({ token, user });
@@ -75,7 +80,14 @@ api.get('/donations', (_req, res) => {
 // Coordinators are already authenticated, so this route trusts requireAuth
 // rather than also demanding a reCAPTCHA solve.
 api.post('/donations', requireAuth, (req, res) => {
-  const record = store.createDonation(req.body || {});
+  const validation = validateDonation(req.body || {});
+  if (!validation.valid) {
+    return res.status(400).json({ error: 'validation_failed', errors: validation.errors });
+  }
+  const record = store.createDonation({
+    ...req.body,
+    createdBy: req.user.email,
+  });
   const drive = record.driveId ? store.bumpDriveTotal(record.driveId, record.amountPhp) : null;
   res.json({ donation: record, drive });
 });
@@ -85,9 +97,14 @@ api.post('/donations', requireAuth, (req, res) => {
 // pledge form (see requireRecaptcha / public/js/pages.js's pledge flow).
 api.post('/donations/pledge', requireAuth, requireRecaptcha, (req, res) => {
   const b = req.body || {};
+  const validation = validateDonation(b);
+  if (!validation.valid) {
+    return res.status(400).json({ error: 'validation_failed', errors: validation.errors });
+  }
   const record = store.createDonation({
     driveId: b.driveId, donor: b.donor, amountPhp: b.amountPhp, category: b.category, org: b.org,
     lat: b.lat, lng: b.lng,
+    createdBy: 'pledge_donor',
   });
   const drive = b.driveId ? store.bumpDriveTotal(b.driveId, b.amountPhp) : null;
   res.json({ pledgeId: `plg-${record.id}`, status: 'received', donation: record, drive });
@@ -99,7 +116,14 @@ api.post('/donations/pledge', requireAuth, requireRecaptcha, (req, res) => {
 // Optional { loc, lat, lng } in the body pins where this checkpoint
 // actually happened, for the tracking map.
 api.post('/donations/:id/checkpoint', requireAuth, (req, res) => {
-  const record = store.addCheckpoint(decodeURIComponent(req.params.id), req.body || {});
+  const validation = validateCheckpoint(req.body || {});
+  if (!validation.valid) {
+    return res.status(400).json({ error: 'validation_failed', errors: validation.errors });
+  }
+  const record = store.addCheckpoint(decodeURIComponent(req.params.id), {
+    ...req.body,
+    updatedBy: req.user.email,
+  });
   if (!record) return res.status(404).json({ error: 'not_found' });
   res.json({ donation: record });
 });
@@ -112,6 +136,43 @@ api.get('/donations/:id/verify', (req, res) => {
   const result = store.verifyDonationChain(decodeURIComponent(req.params.id));
   if (!result) return res.status(404).json({ error: 'not_found' });
   res.json(result);
+});
+
+// Get audit log for a specific donation
+api.get('/donations/:id/audit', requireAuth, (req, res) => {
+  const donation = store.findDonation(decodeURIComponent(req.params.id));
+  if (!donation) return res.status(404).json({ error: 'not_found' });
+  res.json({
+    donationId: donation.id,
+    auditLog: donation.auditLog || [],
+  });
+});
+
+/* ---------- admin stats ---------- */
+api.get('/admin/stats', requireAuth, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'admin_only' });
+  }
+  const donations = store.getDonations();
+  const drives = store.getDrives();
+  
+  const stats = {
+    totalDonations: donations.length,
+    totalRaised: donations.reduce((sum, d) => sum + d.amountPhp, 0),
+    byStatus: {
+      transit: donations.filter(d => d.status === 'transit').length,
+      flagged: donations.filter(d => d.status === 'flagged').length,
+      verified: donations.filter(d => d.status === 'verified').length,
+    },
+    drives: drives.map(d => ({
+      id: d.id,
+      title: d.title,
+      raisedPhp: d.raisedPhp,
+      goalPhp: d.goalPhp,
+      percentFunded: d.percentFunded,
+    })),
+  };
+  res.json(stats);
 });
 
 // Wipes all donations/drives back to the seed demo data. Handy for
@@ -138,15 +199,21 @@ app.use('/api/v1', api);
 // Only wired up if public/ actually exists — so this same server.js
 // still runs correctly as a pure API if you strip public/ out to hand
 // the backend to a team using their own separate frontend.
-const PUBLIC_DIR = path.join(__dirname, '..', 'public');
+const PUBLIC_DIR = path.join(__dirname, 'public');
 if (fs.existsSync(PUBLIC_DIR)) {
   app.use(express.static(PUBLIC_DIR));
+
+  app.get('/', (_req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+  });
 
   // Direct navigation to /dashboard, /track, etc. (no .html) resolves to
   // the matching page, matching how the site would sit behind most static
   // hosts/reverse proxies.
   app.get('/:page', (req, res, next) => {
-    const filePath = path.join(PUBLIC_DIR, `${req.params.page}.html`);
+    const requested = req.params.page;
+    const filePath = path.join(PUBLIC_DIR, `${requested}.html`);
+    if (requested === 'api' || requested === 'favicon.ico') return next();
     res.sendFile(filePath, (err) => { if (err) next(); });
   });
 } else {

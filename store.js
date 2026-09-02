@@ -1,24 +1,17 @@
 /**
- * store.js (Cloud Functions version)
- * ---------------------------------------------------------------
- * Same job as ../server/store.js — Drives, Donations, and the
- * hash-chained checkpoint logic — but backed by Cloud Firestore
- * instead of a local JSON file. Cloud Functions instances don't
- * share a filesystem and aren't guaranteed to stay warm, so a flat
- * file (fine for local `npm start`) can't work once this is actually
- * deployed; Firestore is the durable, shared store every instance
- * reads/writes the same data from.
- *
- * The hash-chain logic itself (SHA-256, genesis hash, chaining
- * function) is identical to server/store.js on purpose — the same
- * "your donation can't be silently rewritten" guarantee holds
- * whichever backend is actually running.
- * --------------------------------------------------------------- */
+ * store.js
+ * ---------------------------------------------------------------------
+ * Local, zero-config store used by the DAONG frontend/backend combo.
+ * This keeps the API contract stable without requiring Firebase or any
+ * external service for local demos and same-origin frontend testing.
+ * --------------------------------------------------------------------- */
 const crypto = require('crypto');
-const admin = require('firebase-admin');
+const fs = require('fs');
+const path = require('path');
 
 const STAGES = ['Received', 'Allocated', 'Dispatched', 'In Transit', 'Delivered'];
 const GENESIS_HASH = '0'.repeat(64);
+const DATA_FILE = path.join(__dirname, 'db.json');
 
 function phTimestamp(d) {
   return d.toLocaleString('en-PH', {
@@ -85,92 +78,77 @@ function seedData() {
     },
   ];
 
-  const donations = rawDonations.map((d) => ({ ...d, checkpoints: chainCheckpoints(d.id, d.checkpoints) }));
-  return { drives, donations, donationIdCounter: 1003 };
+  return {
+    drives,
+    donations: rawDonations.map((d) => ({ ...d, checkpoints: chainCheckpoints(d.id, d.checkpoints) })),
+    donationIdCounter: 1003,
+  };
 }
 
-class FirestoreStore {
+function loadState() {
+  try {
+    const raw = fs.readFileSync(DATA_FILE, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.drives) && Array.isArray(parsed.donations)) {
+      return parsed;
+    }
+  } catch (_err) {
+    // Ignore and fall back to seeded data.
+  }
+
+  const seeded = seedData();
+  fs.writeFileSync(DATA_FILE, JSON.stringify(seeded, null, 2));
+  return seeded;
+}
+
+class Store {
   constructor() {
-    if (!admin.apps.length) admin.initializeApp();
-    this.db = admin.firestore();
+    this.state = loadState();
   }
 
-  async _ensureSeeded() {
-    const snap = await this.db.collection('drives').limit(1).get();
-    if (!snap.empty) return;
-    await this.reset();
+  persist() {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(this.state, null, 2));
   }
 
-  async reset() {
-    const { drives, donations, donationIdCounter } = seedData();
-    const batch = this.db.batch();
-
-    // Clear existing docs first so reset-demo genuinely resets, not just adds.
-    const [existingDrives, existingDonations] = await Promise.all([
-      this.db.collection('drives').get(),
-      this.db.collection('donations').get(),
-    ]);
-    existingDrives.forEach((doc) => batch.delete(doc.ref));
-    existingDonations.forEach((doc) => batch.delete(doc.ref));
-
-    drives.forEach((d) => batch.set(this.db.collection('drives').doc(d.id), d));
-    donations.forEach((d) => batch.set(this.db.collection('donations').doc(d.id), d));
-    batch.set(this.db.collection('meta').doc('counters'), { donationIdCounter });
-
-    await batch.commit();
-    return { drives, donations };
+  getDrives() {
+    return this.state.drives;
   }
 
-  async getDrives() {
-    await this._ensureSeeded();
-    const snap = await this.db.collection('drives').get();
-    return snap.docs.map((d) => d.data());
+  getDonations() {
+    return this.state.donations;
   }
 
-  async getDonations() {
-    await this._ensureSeeded();
-    const snap = await this.db.collection('donations').get();
-    return snap.docs.map((d) => d.data());
+  findDrive(driveId) {
+    return this.state.drives.find((d) => d.id === driveId) || null;
   }
 
-  async findDrive(driveId) {
-    const doc = await this.db.collection('drives').doc(driveId).get();
-    return doc.exists ? doc.data() : null;
-  }
-
-  async findDonation(rawId) {
+  findDonation(rawId) {
     const normalized = String(rawId).toUpperCase();
-    const doc = await this.db.collection('donations').doc(normalized).get();
-    return doc.exists ? doc.data() : null;
+    return this.state.donations.find((d) => d.id.toUpperCase() === normalized) || null;
   }
 
-  async bumpDriveTotal(driveId, amountPhp) {
-    const ref = this.db.collection('drives').doc(driveId);
-    return this.db.runTransaction(async (tx) => {
-      const doc = await tx.get(ref);
-      if (!doc.exists) return null;
-      const drive = doc.data();
-      drive.raisedPhp += Number(amountPhp) || 0;
-      drive.percentFunded = Math.min(100, Math.round((drive.raisedPhp / drive.goalPhp) * 100));
-      tx.set(ref, drive);
-      return drive;
-    });
+  bumpDriveTotal(driveId, amountPhp) {
+    const drive = this.findDrive(driveId);
+    if (!drive) return null;
+    drive.raisedPhp += Number(amountPhp) || 0;
+    drive.percentFunded = Math.min(100, Math.round((drive.raisedPhp / drive.goalPhp) * 100));
+    this.persist();
+    return drive;
   }
 
-  async createDonation({ driveId, donor, amountPhp, category, org, intakeLocation, lat, lng }) {
-    const counterRef = this.db.collection('meta').doc('counters');
-    const id = await this.db.runTransaction(async (tx) => {
-      const doc = await tx.get(counterRef);
-      const next = ((doc.exists && doc.data().donationIdCounter) || 1003) + 1;
-      tx.set(counterRef, { donationIdCounter: next }, { merge: true });
-      return `TN-${next}`;
-    });
-
+  createDonation({ driveId, donor, amountPhp, category, org, intakeLocation, lat, lng, createdBy } = {}) {
+    const nextId = this.state.donationIdCounter + 1;
+    this.state.donationIdCounter = nextId;
+    const id = `TN-${nextId}`;
     const now = new Date();
     const firstCheckpoint = {
-      stage: 'Received', loc: intakeLocation || 'Central Intake Warehouse', time: phTimestamp(now),
-      lat: lat ?? null, lng: lng ?? null,
+      stage: 'Received',
+      loc: intakeLocation || 'Central Intake Warehouse',
+      time: phTimestamp(now),
+      lat: lat ?? null,
+      lng: lng ?? null,
     };
+
     const record = {
       id,
       driveId: driveId || null,
@@ -182,38 +160,64 @@ class FirestoreStore {
       stageIndex: 0,
       status: 'transit',
       checkpoints: chainCheckpoints(id, [firstCheckpoint]),
+      auditLog: [
+        {
+          action: 'created',
+          timestamp: now.toISOString(),
+          user: createdBy || 'system',
+          details: { amountPhp, donor, org },
+        },
+      ],
     };
-    await this.db.collection('donations').doc(id).set(record);
+
+    this.state.donations.push(record);
+    this.persist();
     return record;
   }
 
-  async addCheckpoint(rawId, { loc, lat, lng } = {}) {
-    const normalized = String(rawId).toUpperCase();
-    const ref = this.db.collection('donations').doc(normalized);
-    return this.db.runTransaction(async (tx) => {
-      const doc = await tx.get(ref);
-      if (!doc.exists) return null;
-      const record = doc.data();
-      record.stageIndex = Math.min(record.stageIndex + 1, STAGES.length - 1);
-      const nextStage = STAGES[record.stageIndex];
-      const previousHash = record.checkpoints.length
-        ? record.checkpoints[record.checkpoints.length - 1].hash
-        : GENESIS_HASH;
-      const [stamped] = chainCheckpoints(
-        record.id,
-        [{ stage: nextStage, loc: loc || 'Field Checkpoint (manual log)', time: phTimestamp(new Date()), lat: lat ?? null, lng: lng ?? null }],
-        previousHash,
-      );
-      record.checkpoints.push(stamped);
-      if (nextStage === 'Delivered') record.status = 'verified';
-      tx.set(ref, record);
-      return record;
+  addCheckpoint(rawId, { loc, lat, lng, updatedBy } = {}) {
+    const record = this.findDonation(rawId);
+    if (!record) return null;
+
+    record.stageIndex = Math.min(record.stageIndex + 1, STAGES.length - 1);
+    const nextStage = STAGES[record.stageIndex];
+    const previousHash = record.checkpoints.length
+      ? record.checkpoints[record.checkpoints.length - 1].hash
+      : GENESIS_HASH;
+
+    const [stamped] = chainCheckpoints(
+      record.id,
+      [{
+        stage: nextStage,
+        loc: loc || 'Field Checkpoint (manual log)',
+        time: phTimestamp(new Date()),
+        lat: lat ?? null,
+        lng: lng ?? null,
+      }],
+      previousHash,
+    );
+
+    record.checkpoints.push(stamped);
+    if (nextStage === 'Delivered') record.status = 'verified';
+
+    // Add audit log entry
+    if (!record.auditLog) record.auditLog = [];
+    record.auditLog.push({
+      action: 'checkpoint_added',
+      stage: nextStage,
+      timestamp: new Date().toISOString(),
+      user: updatedBy || 'system',
+      details: { loc, lat, lng },
     });
+
+    this.persist();
+    return record;
   }
 
-  async verifyDonationChain(rawId) {
-    const record = await this.findDonation(rawId);
+  verifyDonationChain(rawId) {
+    const record = this.findDonation(rawId);
     if (!record) return null;
+
     let expectedPrev = GENESIS_HASH;
     for (let i = 0; i < record.checkpoints.length; i += 1) {
       const cp = record.checkpoints[i];
@@ -223,8 +227,15 @@ class FirestoreStore {
       }
       expectedPrev = cp.hash;
     }
+
     return { isIntact: true, checkpointsChecked: record.checkpoints.length };
+  }
+
+  reset() {
+    this.state = seedData();
+    this.persist();
+    return { drives: this.state.drives, donations: this.state.donations };
   }
 }
 
-module.exports = { FirestoreStore, STAGES };
+module.exports = { Store, FirestoreStore: Store, STAGES };

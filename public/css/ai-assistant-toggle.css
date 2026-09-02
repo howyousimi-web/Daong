@@ -1,0 +1,315 @@
+﻿/* =================================================================
+   AI ASSISTANT TOGGLE ΓÇö standalone component stylesheet
+   -----------------------------------------------------------------
+   Part of a self-contained 2-file component (markup lives inline in
+   each page between the BEGIN/END AI ASSISTANT TOGGLE COMPONENT
+   comments):
+     ai-assistant-toggle.css   (this file)
+     ai-assistant-toggle.js    (behavior)
+
+   This file has no dependency on any host page's stylesheet, reset,
+   or variables, and defines nothing outside its own selectors ΓÇö it
+   is safe to drop into any project without a collision.
+
+   THEMING
+   Every color, size, and radius the component uses is a custom
+   property scoped to #aiat-root (not :root), so it cannot leak into
+   or clash with a host page's own variables. To restyle the
+   component for a new project, override these properties from your
+   own stylesheet (loaded after this one) ΓÇö you should not need to
+   edit any rule below this block:
+
+     #aiat-root {
+       --aiat-color-primary: #yourBrandColor;
+       --aiat-color-primary-hover: #yourBrandColorDark;
+       --aiat-font: "Your Font", sans-serif;
+     }
+
+   DAONG's own brand override lives in css/styles.css (search for
+   "#aiat-root" there) and maps these variables onto the site's
+   existing --gold / --card / --ink tokens, so it also follows the
+   site's light/dark theme toggle automatically.
+   ================================================================= */
+
+#aiat-root {
+  --aiat-color-primary: #5b5fef;
+  --aiat-color-primary-hover: #4a4dd6;
+  --aiat-color-on-primary: #ffffff;
+  --aiat-color-surface: #ffffff;
+  --aiat-color-surface-alt: #f3f4f8;
+  --aiat-color-text: #1f2230;
+  --aiat-color-text-muted: #6b7280;
+  --aiat-color-border: #e3e5ea;
+  --aiat-color-success: #22c55e;
+  --aiat-color-danger: #ef4444;
+
+  --aiat-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --aiat-size-toggle: 60px;
+  --aiat-radius-lg: 20px;
+  --aiat-radius-md: 14px;
+  --aiat-radius-sm: 10px;
+  --aiat-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
+  --aiat-z-index: 999999; /* deliberately very high ΓÇö the widget must float above an unknown host page's own stacking order */
+}
+
+/* -----------------------------------------------------------------
+   1. FLOATING TOGGLE BUTTON
+   ----------------------------------------------------------------- */
+.aiat-toggle {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: var(--aiat-size-toggle);
+  height: var(--aiat-size-toggle);
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--aiat-color-primary);
+  color: var(--aiat-color-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  box-shadow: var(--aiat-shadow);
+  z-index: var(--aiat-z-index);
+  touch-action: none; /* let pointer events drive dragging instead of touch-scroll */
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-sizing: border-box;
+}
+.aiat-toggle:hover { background: var(--aiat-color-primary-hover); }
+.aiat-toggle:active { cursor: grabbing; }
+.aiat-toggle.is-dragging { cursor: grabbing; transform: scale(1.05); transition: none; }
+.aiat-toggle:focus-visible { outline: 2px solid var(--aiat-color-primary); outline-offset: 3px; }
+
+.aiat-toggle-icon { position: relative; width: 26px; height: 26px; }
+.aiat-icon {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.aiat-icon-chat rect,
+.aiat-icon-chat polygon { fill: currentColor; }
+.aiat-icon-chat circle { fill: var(--aiat-color-primary); }
+.aiat-icon-close line { stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.aiat-icon-close { opacity: 0; transform: scale(0.5) rotate(-45deg); }
+
+/* Icon morphs from a chat bubble to a close X when the panel opens */
+.aiat-toggle[aria-expanded="true"] .aiat-icon-chat { opacity: 0; transform: scale(0.5) rotate(45deg); }
+.aiat-toggle[aria-expanded="true"] .aiat-icon-close { opacity: 1; transform: scale(1) rotate(0deg); }
+
+/* -----------------------------------------------------------------
+   2. CHAT PANEL
+   ----------------------------------------------------------------- */
+.aiat-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 96px;
+  width: min(360px, 92vw);
+  max-height: min(560px, 75vh);
+  background: var(--aiat-color-surface);
+  border: 1px solid var(--aiat-color-border);
+  border-radius: var(--aiat-radius-lg);
+  box-shadow: var(--aiat-shadow);
+  z-index: var(--aiat-z-index);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.95) translateY(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  font-family: var(--aiat-font);
+  box-sizing: border-box;
+}
+.aiat-panel * { box-sizing: border-box; }
+.aiat-panel.is-open {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.aiat-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.125rem;
+  border-bottom: 1px solid var(--aiat-color-border);
+}
+.aiat-panel-heading { display: flex; align-items: flex-start; gap: 0.625rem; }
+.aiat-panel-heading h2 { font-size: 1rem; font-weight: 600; margin: 0; color: var(--aiat-color-text); }
+.aiat-subtitle { font-size: 0.75rem; color: var(--aiat-color-text-muted); margin: 2px 0 0; }
+.aiat-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--aiat-color-success);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.aiat-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--aiat-color-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.aiat-close-btn:hover { background: var(--aiat-color-surface-alt); border-color: var(--aiat-color-border); }
+.aiat-close-btn:focus-visible { outline: 2px solid var(--aiat-color-primary); outline-offset: 2px; }
+.aiat-close-btn svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+/* -----------------------------------------------------------------
+   3. MESSAGE LIST
+   ----------------------------------------------------------------- */
+.aiat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+.aiat-msg {
+  max-width: 84%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--aiat-color-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.aiat-msg-ai {
+  align-self: flex-start;
+  background: var(--aiat-color-surface-alt);
+  border-radius: var(--aiat-radius-md) var(--aiat-radius-md) var(--aiat-radius-md) 4px;
+}
+.aiat-msg-user {
+  align-self: flex-end;
+  background: var(--aiat-color-primary);
+  color: var(--aiat-color-on-primary);
+  border-radius: var(--aiat-radius-md) var(--aiat-radius-md) 4px var(--aiat-radius-md);
+}
+.aiat-msg-system {
+  align-self: center;
+  max-width: 100%;
+  background: transparent;
+  color: var(--aiat-color-text-muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+.aiat-msg-system.is-error { color: var(--aiat-color-danger); font-weight: 600; }
+
+/* Typing indicator ΓÇö three dots on the same bubble shape as an AI message */
+.aiat-msg-typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.75rem 0.875rem;
+}
+.aiat-msg-typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--aiat-color-text-muted);
+  animation: aiat-typing-bounce 1.2s infinite ease-in-out;
+}
+.aiat-msg-typing span:nth-child(2) { animation-delay: 0.15s; }
+.aiat-msg-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes aiat-typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* -----------------------------------------------------------------
+   4. INPUT ROW
+   ----------------------------------------------------------------- */
+.aiat-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-top: 1px solid var(--aiat-color-border);
+}
+.aiat-input {
+  flex: 1;
+  resize: none;
+  min-height: 40px;
+  max-height: 120px;
+  padding: 0.625rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--aiat-color-text);
+  background: var(--aiat-color-surface-alt);
+  border: 1px solid var(--aiat-color-border);
+  border-radius: var(--aiat-radius-sm);
+}
+.aiat-input:focus-visible { outline: 2px solid var(--aiat-color-primary); outline-offset: 1px; }
+.aiat-input::placeholder { color: var(--aiat-color-text-muted); }
+.aiat-send-btn {
+  padding: 0.625rem 1rem;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--aiat-radius-sm);
+  background: var(--aiat-color-primary);
+  color: var(--aiat-color-on-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+.aiat-send-btn:hover:not(:disabled) { background: var(--aiat-color-primary-hover); }
+.aiat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.aiat-send-btn:focus-visible { outline: 2px solid var(--aiat-color-primary); outline-offset: 2px; }
+
+/* -----------------------------------------------------------------
+   5. RESPONSIVE: SMALL SCREENS
+   Breakpoint must stay in sync with AIAT_MOBILE_BREAKPOINT in
+   ai-assistant-toggle.js.
+   ----------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .aiat-panel {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    max-height: 78vh;
+    border-radius: var(--aiat-radius-lg) var(--aiat-radius-lg) 0 0;
+  }
+  .aiat-toggle { right: 16px; bottom: 16px; }
+}
+
+/* -----------------------------------------------------------------
+   6. REDUCED MOTION
+   ----------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .aiat-toggle,
+  .aiat-panel,
+  .aiat-icon { transition-duration: 0.01ms !important; }
+  .aiat-msg-typing span { animation: none; opacity: 1; }
+}
+
+/* -----------------------------------------------------------------
+   7. VISUALLY-HIDDEN UTILITY (for the input's screen-reader label)
+   ----------------------------------------------------------------- */
+.aiat-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

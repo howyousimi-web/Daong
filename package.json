@@ -1,16 +1,17 @@
 {
-  "name": "daong-functions",
+  "name": "daong-backend",
   "version": "1.0.0",
-  "description": "DAONG backend, packaged as a Firebase Cloud Function. Firestore-backed (server/ next door uses a flat JSON file instead, for zero-setup local dev — this directory is the deployable, durable version).",
+  "description": "DAONG local backend that serves the frontend and exposes the dashboard/tracking API expected by the web app.",
   "private": true,
-  "main": "index.js",
+  "main": "server.js",
   "engines": {
-    "node": "20"
+    "node": ">=20"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "dependencies": {
+    "@google-cloud/recaptcha-enterprise": "^7.1.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "firebase-admin": "^12.7.0",

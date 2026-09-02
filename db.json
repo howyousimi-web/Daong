@@ -5,8 +5,8 @@
       "title": "Bulacan Flood Rapid Response",
       "category": "food",
       "goalPhp": 500000,
-      "raisedPhp": 360000,
-      "percentFunded": 72
+      "raisedPhp": 365000,
+      "percentFunded": 73
     },
     {
       "id": "drv-002",
@@ -177,7 +177,40 @@
           "hash": "cb1c92fc0c8bad912ec2763a18c60675c02a41ee85fd6bc967fd0ca2293361c5"
         }
       ]
+    },
+    {
+      "id": "TN-1004",
+      "driveId": "drv-001",
+      "donor": "Test Donor",
+      "amountPhp": 5000,
+      "category": "Food",
+      "org": "General Relief Fund",
+      "date": "2026-09-02",
+      "stageIndex": 0,
+      "status": "transit",
+      "checkpoints": [
+        {
+          "stage": "Received",
+          "loc": "Central Intake Warehouse",
+          "time": "Sep 2, 10:51 AM",
+          "lat": null,
+          "lng": null,
+          "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "6238d54dee536cd4ff81b1d78a6e660e5bf39af581a4b453421ac317141e8635"
+        }
+      ],
+      "auditLog": [
+        {
+          "action": "created",
+          "timestamp": "2026-09-02T02:51:14.315Z",
+          "user": "coordinator@daong.org.ph",
+          "details": {
+            "amountPhp": 5000,
+            "donor": "Test Donor"
+          }
+        }
+      ]
     }
   ],
-  "donationIdCounter": 1003
+  "donationIdCounter": 1004
 }
