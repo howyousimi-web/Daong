@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maintenance — DAONG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Tagalog&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin-demo.css">
+  <link rel="stylesheet" href="css/maintenance.css">
+</head>
+<body class="admin-demo-page maintenance-page has-app-header"><a href="#main-content" class="skip-link">Skip to main content</a>  <header class="app-header" id="topbar">
+    <div class="shell-wide app-header-inner tracking-header-inner">
+      <a href="index.html" class="wordmark" aria-label="DAONG Homepage">
+        <span class="mark" lang="tl" aria-hidden="true">ᜇᜂᜅ᜔</span><span class="name">DAONG</span>
+      </a>
+      <div class="admin-header-title">MAINTENANCE</div>
+      <div class="header-actions">
+        <button type="button" id="theme-toggle" class="icon-btn theme-toggle" aria-label="Toggle light/dark theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a class="btn btn-outline btn-sm" href="dashboard.html">← Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+
+<main id="main-content" class="shell-wide admin-demo-shell"><div class="topbar"><div><span class="eyebrow">DAONG · Maintenance</span><h1 class="page-title" id="maintenance-heading">Maintenance Panel<span>.</span></h1></div><a class="btn btn-outline btn-sm" href="admin-demo.html#roles">← Back to roles</a></div><nav class="section-tabs" aria-label="Maintenance sections"><a class="section-tab" href="#panel" data-maintenance-view="panel" aria-current="page">Overview</a><a class="section-tab" href="#vehicles" data-maintenance-view="vehicles">Vehicle Maintenance</a></nav><section id="maintenance-panel" aria-labelledby="maintenance-overview-heading"><div class="panel-heading"><div><h2 id="maintenance-overview-heading">Your fleet, mission-ready.</h2><p>Keep every relief vehicle ready for its next mission.</p></div></div><div class="admin-tool-grid"><a href="#vehicles" class="surface tool-card"><span class="eyebrow">Fleet Care</span><h3>Vehicle Maintenance ↗</h3><p>Post-trip cleaning queue, oil-change tracking, odometer logs, and fleet readiness status.</p></a></div><p class="admin-footnote">Frontend demo · Review fleet readiness and manage cleaning updates in this browser.</p></section><section id="maintenance-vehicles" hidden aria-labelledby="vehicles-heading"><a class="maintenance-back" href="#panel">← Back to Maintenance Panel</a><span class="eyebrow">Vehicle Maintenance · Demo Fleet</span><h1 class="page-title" id="vehicles-heading">Ready for the next trip<span>.</span></h1><p class="admin-intro">Review cleaning needs, service intervals, and latest odometer readings.</p><div class="maintenance-summary" id="maintenance-summary"></div><div class="maintenance-filters"><label for="maintenance-search" class="visually-hidden">Search vehicle or plate</label><input id="maintenance-search" type="search" placeholder="Search vehicle or plate…"><select id="maintenance-status" aria-label="Filter readiness"><option value="all">All vehicles</option><option value="ready">Ready</option><option value="cleaning">Needs cleaning</option><option value="service">Service due</option></select></div><p id="maintenance-message" role="status"></p><div id="maintenance-fleet"></div><p class="admin-footnote">Demo fleet · Cleaning updates are saved in this browser. Odometer and service readings are illustrative.</p></section></main><script src="js/app.js"></script><script src="js/maintenance.js"></script></body></html>

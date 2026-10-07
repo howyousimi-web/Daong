@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Demo — DAONG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Tagalog&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin-demo.css">
+</head>
+<body class="admin-demo-page has-app-header"><a href="#main-content" class="skip-link">Skip to main content</a>  <header class="app-header" id="topbar">
+    <div class="shell-wide app-header-inner tracking-header-inner">
+      <a href="index.html" class="wordmark" aria-label="DAONG Homepage">
+        <span class="mark" lang="tl" aria-hidden="true">ᜇᜂᜅ᜔</span><span class="name">DAONG</span>
+      </a>
+      <div class="admin-header-title">ADMIN DEMO</div>
+      <div class="header-actions">
+        <button type="button" id="theme-toggle" class="icon-btn theme-toggle" aria-label="Toggle light/dark theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a class="btn btn-outline btn-sm" href="dashboard.html">← Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+
+<main id="main-content" class="shell-wide admin-demo-shell">  <section class="role-picker" id="role-picker" aria-labelledby="roles-title">
+    <span class="eyebrow">DAONG · Admin Demo</span><h1 class="page-title" id="roles-title">Select your role<span>.</span></h1><p class="admin-intro">Explore the tools behind every accountable relief operation.</p>
+    <ul class="roles">
+
+    <li>
+      <a class="role-card" href="#super-admin" data-role="super-admin">
+        <span class="icon-box" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>
+        </span>
+        <h2>Super Admin</h2>
+        <p>Full system control, user management, and high-level reports.</p>
+      </a>
+    </li>
+
+    <li>
+      <a class="role-card" href="dispatcher.html" data-role="dispatcher">
+        <span class="icon-box" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M21 16.5v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 5.2 2 2 0 0 1 4.1 3h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 11a16 16 0 0 0 6 6l1.4-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+        </span>
+        <h2>Dispatcher</h2>
+        <p>Assign drivers and monitor active vehicle routes.</p>
+      </a>
+    </li>
+
+    <li>
+      <a class="role-card" href="driver.html" data-role="driver">
+        <span class="icon-box" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M5 8.5V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2.5"/>
+            <rect x="3" y="8.5" width="18" height="11" rx="2.5"/>
+            <circle cx="8" cy="14" r="1"/>
+            <circle cx="16" cy="14" r="1"/>
+          </svg>
+        </span>
+        <h2>Driver</h2>
+        <p>Access trip schedules and submit mileage updates.</p>
+      </a>
+    </li>
+
+    <li>
+      <a class="role-card" href="maintenance.html" data-role="maintenance">
+        <span class="icon-box" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg>
+        </span>
+        <h2>Maintenance</h2>
+        <p>Update vehicle repair status and service logs.</p>
+      </a>
+    </li>
+
+    </ul>
+  </section>
+
+<section id="super-admin" hidden aria-labelledby="admin-title"><div class="topbar"><div><span class="eyebrow">DAONG · Super Admin</span><h1 id="admin-title" class="page-title">Super Admin Panel<span>.</span></h1></div><button class="btn btn-outline btn-sm" id="back-to-roles" type="button">← Back to roles</button></div><nav class="section-tabs" aria-label="Super Admin sections"><a class="section-tab" href="live-tracking.html">Live Tracking ↗</a><a class="section-tab" href="manage-esp32.html">Manage ESP32 ↗</a><a class="section-tab" href="#reports" data-panel="reports">Generate Reports</a><a class="section-tab" href="#audit" data-panel="audit">Audit Logs</a></nav><section id="admin-overview" class="admin-panel"><div class="panel-heading"><div><h2>Your operations, connected.</h2><p>Choose a tool to monitor relief movement, manage hardware, or review activity.</p></div></div><div class="admin-tool-grid"><a class="surface tool-card" href="live-tracking.html"><span class="eyebrow">Fleet Monitor</span><h3>Live Tracking ↗</h3><p>View relief vehicles and their latest demo GPS positions.</p></a><a class="surface tool-card" href="manage-esp32.html"><span class="eyebrow">Hardware Management</span><h3>Manage ESP32 ↗</h3><p>Register modules and review vehicle assignments.</p></a></div></section><section class="admin-panel" hidden id="reports" aria-labelledby="reports-heading">
+<div class="panel-heading"><div><h2 id="reports-heading">Generate Reports</h2><p>Financial overview · Summary, charts, and records follow the applied filters.</p></div><span class="report-demo">DEMO DATA</span></div>
+<div class="report-section-heading"><h3><b>1</b> Summary</h3><span class="report-range"></span></div>
+<div class="financial-summary"><div class="financial-kpis"><article class="surface financial-kpi"><span class="module-caption">Collected · <span id="report-client-label">All clients</span></span><strong id="report-collected"></strong><p id="report-billed"></p></article><article class="surface financial-kpi"><span class="module-caption">Finished trips</span><strong id="report-finished"></strong><p id="report-bookings"></p></article></div><article class="surface financial-chart"><div class="chart-heading"><span class="module-caption" id="chart-title">Income</span><div class="chart-switch" aria-label="Chart view"><button type="button" data-chart="income" aria-pressed="true">Income</button><button type="button" data-chart="collected" aria-pressed="false">Collected vs Outstanding</button><button type="button" data-chart="profit" aria-pressed="false">Cost vs Profit</button></div></div><div id="financial-chart" role="img" aria-label="Financial chart"></div><div id="chart-legend" class="chart-legend"></div></article></div>
+<div class="report-section-heading"><h3><b>1b</b> Expenses &amp; other income</h3><span>Date range only · All clients</span></div><div class="expense-kpis"><article class="surface"><span class="module-caption">Other income</span><strong class="money-positive" id="report-other"></strong><small id="report-other-count"></small></article><article class="surface"><span class="module-caption">Expenses</span><strong class="money-negative" id="report-expenses"></strong><small id="report-expense-count"></small></article><article class="surface"><span class="module-caption">Net position</span><strong id="report-net"></strong><small>Collected + other income − expenses</small></article><article class="surface"><span class="module-caption">Top expense category</span><strong id="report-top-category"></strong><small id="report-top-amount"></small></article></div>
+<div class="report-section-heading"><h3><b>2</b> Filters</h3><span>Applies to summary, chart, table, and export</span></div>
+<form class="surface report-filter-form" id="financial-filter-form"><div class="report-filter-top"><label>From date<input type="date" id="financial-from" required></label><label>To date<input type="date" id="financial-to" required></label><button type="submit" class="button primary">Load report</button><div class="quick-ranges"><span class="module-caption">Quick range</span><button type="button" class="button" data-range="month">This month</button><button type="button" class="button" data-range="last-month">Last month</button><button type="button" class="button" data-range="year">This year</button></div><div class="report-export"><button type="button" class="button" id="financial-export">↓ Export to Excel (CSV)</button><button type="button" class="button" id="financial-print">Print (landscape)</button></div></div><div class="client-filter"><label for="financial-client">Client name / company · Add alternate spellings</label><div class="client-filter-input"><input id="financial-client" maxlength="80" placeholder="e.g. DepEd or Department of Education"><button type="button" class="button" id="financial-add-client">＋ Add</button><button type="button" class="button" id="financial-clear-clients">Clear all</button></div><div id="financial-client-chips"></div><p class="subtle">A record matches if any added term appears in its client name or company. Click Load report to apply date and client changes.</p></div><p id="report-notice" class="notice" role="status"></p></form>
+<div class="report-section-heading"><h3><b>3</b> Financial Records</h3><span class="report-range"></span><button type="button" class="button" id="financial-plates" aria-pressed="false">Show plate numbers</button></div><p class="subtle"><span class="money-positive">Green: money in</span> · <span class="money-negative">Red: money out</span> · Cancelled bookings are excluded.</p><div class="surface financial-table-wrap"><div class="table-wrap"><table id="financial-table"><caption class="visually-hidden">Filtered demo financial records</caption><thead></thead><tbody></tbody><tfoot></tfoot></table></div></div><p class="financial-note">Demo financial records · Figures are illustrative. Operational costs are included in the billed amount; profit is billed less costs. Net position uses payments collected plus other income minus separately recorded expenses.</p>
+</section>
+    <section class="admin-panel" hidden id="audit" aria-labelledby="audit-heading">
+      <div class="panel-heading"><div><h2 id="audit-heading">Audit Logs</h2><p>Recent sample activity for this frontend demo.</p></div></div>
+      <div class="surface">
+        <div class="filters"><div class="field"><label for="audit-search">Search activity</label><input id="audit-search" type="search" placeholder="User, action, or item" /></div><div class="field"><label for="audit-filter">Category</label><select id="audit-filter"><option value="all">All activity</option><option value="Device">Devices</option><option value="Report">Reports</option><option value="Tracking">Tracking</option></select></div></div>
+        <div class="table-wrap"><table id="audit-table"><thead><tr><th>Time</th><th>Category</th><th>User</th><th>Action</th><th>Item</th></tr></thead><tbody>
+          <tr data-category="Tracking"><td>Today, 09:42</td><td>Tracking</td><td>Admin Demo</td><td>Opened fleet view</td><td>Live Tracking</td></tr>
+          <tr data-category="Device"><td>Today, 09:30</td><td>Device</td><td>Admin Demo</td><td>Checked module status</td><td>ESP32-001</td></tr>
+          <tr data-category="Report"><td>Yesterday, 16:18</td><td>Report</td><td>Admin Demo</td><td>Generated fleet report</td><td>Fleet activity</td></tr>
+          <tr data-category="Device"><td>Yesterday, 11:06</td><td>Device</td><td>Admin Demo</td><td>Updated assignment</td><td>ESP32-003</td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+</section><p class="admin-footnote">Frontend demo · Role selection does not grant account permissions. Reports and audit logs use demo data.</p></main><script src="js/app.js"></script><script src="js/admin-demo.js"></script><script src="js/financial-reports.js"></script></body></html>

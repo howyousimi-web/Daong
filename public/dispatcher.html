@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dispatcher — DAONG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Tagalog&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin-demo.css">
+  <link rel="stylesheet" href="css/dispatcher.css">
+</head>
+<body class="admin-demo-page dispatcher-page has-app-header"><a href="#main-content" class="skip-link">Skip to main content</a>  <header class="app-header" id="topbar">
+    <div class="shell-wide app-header-inner tracking-header-inner">
+      <a href="index.html" class="wordmark" aria-label="DAONG Homepage">
+        <span class="mark" lang="tl" aria-hidden="true">ᜇᜂᜅ᜔</span><span class="name">DAONG</span>
+      </a>
+      <div class="admin-header-title">DISPATCHER</div>
+      <div class="header-actions">
+        <button type="button" id="theme-toggle" class="icon-btn theme-toggle" aria-label="Toggle light/dark theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a class="btn btn-outline btn-sm" href="dashboard.html">← Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+
+<main id="main-content" class="shell-wide admin-demo-shell">
+<div class="topbar"><div><span class="eyebrow">DAONG · Dispatcher</span><h1 class="page-title">Dispatcher Panel<span>.</span></h1></div><a class="btn btn-outline btn-sm" href="admin-demo.html#roles">← Back to roles</a></div>
+<nav class="section-tabs" aria-label="Dispatcher sections"><a class="section-tab" href="#panel" data-dispatcher-view="panel" aria-current="page">Overview</a><a class="section-tab" href="#calendar" data-dispatcher-view="calendar">Trip Calendar</a></nav>
+<section id="dispatcher-panel" aria-labelledby="dispatcher-overview-heading"><div class="panel-heading"><div><h2 id="dispatcher-overview-heading">Every trip, on schedule.</h2><p>Plan relief movement and keep your fleet’s schedule in view.</p></div></div><div class="admin-tool-grid"><a class="surface tool-card" href="#calendar"><span class="eyebrow">Fleet Schedule</span><h3>Trip Calendar ↗</h3><p>View past, current, and upcoming trips plotted on an interactive calendar.</p></a></div><p class="admin-footnote">Frontend demo · Trip schedules use illustrative data.</p></section>
+<section id="dispatcher-calendar" hidden aria-labelledby="calendar-heading"><div class="panel-heading"><div><h2 id="calendar-heading">Trip Calendar</h2><p>Select a day to review scheduled relief trips. All times are in Manila.</p></div><span class="report-demo">DEMO SCHEDULE</span></div><div class="calendar-filters"><label><span class="visually-hidden">Search trip, driver, or plate</span><input id="trip-search" type="search" placeholder="Search trip, driver, or plate…"></label><select id="trip-status" aria-label="Filter trip status"><option value="all">All statuses</option><option value="completed">Completed</option><option value="active">In progress</option><option value="scheduled">Scheduled</option></select></div>
+<div class="trip-calendar-layout"><div class="surface calendar-surface"><div class="calendar-toolbar"><h3 id="calendar-month" aria-live="polite"></h3><div><button class="button" type="button" id="calendar-prev" aria-label="Previous month">←</button><button class="button" type="button" id="calendar-today">Today</button><button class="button" type="button" id="calendar-next" aria-label="Next month">→</button></div></div><div class="calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div id="calendar-days" class="calendar-days" aria-label="Choose a calendar day"></div><div class="calendar-legend"><span class="completed">● Completed</span><span class="active">● In progress</span><span class="scheduled">● Scheduled</span></div></div><aside class="surface trip-agenda" aria-labelledby="agenda-heading"><span class="eyebrow">Daily Schedule</span><h3 id="agenda-heading"></h3><div id="trip-agenda" aria-live="polite"></div></aside></div><p id="calendar-count" class="admin-footnote" role="status"></p></section>
+</main><script src="js/app.js"></script><script src="js/dispatcher.js"></script></body></html>

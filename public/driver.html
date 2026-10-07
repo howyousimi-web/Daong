@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver — DAONG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Tagalog&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin-demo.css">
+  <link rel="stylesheet" href="css/dispatcher.css">
+  <link rel="stylesheet" href="css/driver.css">
+</head>
+<body class="admin-demo-page driver-page has-app-header"><a href="#main-content" class="skip-link">Skip to main content</a>  <header class="app-header" id="topbar">
+    <div class="shell-wide app-header-inner tracking-header-inner">
+      <a href="index.html" class="wordmark" aria-label="DAONG Homepage">
+        <span class="mark" lang="tl" aria-hidden="true">ᜇᜂᜅ᜔</span><span class="name">DAONG</span>
+      </a>
+      <div class="admin-header-title">DRIVER</div>
+      <div class="header-actions">
+        <button type="button" id="theme-toggle" class="icon-btn theme-toggle" aria-label="Toggle light/dark theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a class="btn btn-outline btn-sm" href="dashboard.html">← Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+
+<main id="main-content" class="shell-wide admin-demo-shell">
+<div class="topbar"><div><span class="eyebrow">DAONG · Driver</span><h1 class="page-title">Driver Dashboard<span>.</span></h1></div><a class="btn btn-outline btn-sm" href="admin-demo.html#roles">← Back to roles</a></div>
+<nav class="section-tabs" aria-label="Driver sections"><a class="section-tab" href="#panel" data-driver-view="panel" aria-current="page">Overview</a><a class="section-tab" href="#bookings" data-driver-view="bookings">My Assigned Bookings</a><a class="section-tab" href="#schedule" data-driver-view="schedule">My Schedule</a></nav>
+<section id="driver-panel" aria-labelledby="driver-overview-heading"><div class="panel-heading"><div><h2 id="driver-overview-heading">Your trips, your next mission.</h2><p>Review your assignments and keep every relief journey on track.</p></div></div><div class="admin-tool-grid"><a class="surface tool-card" href="#bookings"><span class="eyebrow">Assigned Trips</span><h3>My Assigned Bookings ↗</h3><p>View your upcoming trips, itineraries, and update journey status.</p></a><a class="surface tool-card" href="#schedule"><span class="eyebrow">Personal Schedule</span><h3>My Schedule ↗</h3><p>See your own trips on a month calendar. Only bookings assigned to you appear here.</p></a></div><p class="admin-footnote">Driver demo · M. Santos · Assignments and schedules are illustrative.</p></section>
+<section id="driver-bookings" hidden aria-labelledby="bookings-heading"><a class="btn btn-outline btn-sm driver-home-link" href="#panel">← Back to Driver Home</a><div class="panel-heading"><div><h2 id="bookings-heading">My Assigned Trips</h2><p>Your relief operations, vehicle assignments, and journey status.</p></div><span class="report-demo">M. SANTOS · DEMO</span></div><div class="calendar-filters booking-filters"><label><span class="visually-hidden">Search assigned bookings</span><input type="search" id="booking-search" placeholder="Search Booking ID or Route…"></label><select id="booking-status" aria-label="Filter assigned bookings"><option value="all">All statuses</option><option value="approval">For Approval</option><option value="scheduled">Scheduled</option><option value="active">On-Going</option><option value="completed">Finished</option></select><select id="booking-sort" aria-label="Sort assigned bookings"><option value="earliest">Earliest Booking Date</option><option value="latest">Latest Booking Date</option></select></div><p id="driver-message" class="notice" role="status"></p><div id="driver-booking-list" class="driver-booking-list"></div><p class="admin-footnote">Journey updates save in this browser. Dispatcher and hardware feeds are separate demos.</p></section>
+<section id="driver-schedule" hidden aria-labelledby="calendar-heading"><a class="btn btn-outline btn-sm driver-home-link" href="#panel">← Back to Driver Home</a><div class="panel-heading"><div><h2 id="calendar-heading">My Schedule</h2><p>Select a day to review your assigned trips. All times are in Manila.</p></div><span class="report-demo">M. SANTOS · DEMO</span></div><div class="calendar-filters"><label><span class="visually-hidden">Search trip, driver, or plate</span><input id="trip-search" type="search" placeholder="Search trip, driver, or plate…"></label><select id="trip-status" aria-label="Filter trip status"><option value="all">All statuses</option><option value="completed">Finished</option><option value="active">On-Going</option><option value="scheduled">Scheduled</option></select></div>
+<div class="trip-calendar-layout"><div class="surface calendar-surface"><div class="calendar-toolbar"><h3 id="calendar-month" aria-live="polite"></h3><div><button class="button" type="button" id="calendar-prev" aria-label="Previous month">← Prev</button><button class="button" type="button" id="calendar-today">Today</button><button class="button" type="button" id="calendar-next" aria-label="Next month">Next →</button></div></div><div class="calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div id="calendar-days" class="calendar-days" aria-label="Choose a calendar day"></div><div class="calendar-legend"><span class="approval">● For Approval</span><span class="scheduled">● Scheduled</span><span class="active">● On-Going</span><span class="completed">● Finished</span><span id="calendar-count" class="driver-month-note" role="status"></span></div></div><aside id="driver-day-details" hidden class="surface trip-agenda" aria-labelledby="agenda-heading"><span class="eyebrow">Daily Schedule</span><h3 id="agenda-heading"></h3><div id="trip-agenda" aria-live="polite"></div></aside></div></section>
+</main><script src="js/app.js"></script><script src="js/driver.js"></script></body></html>

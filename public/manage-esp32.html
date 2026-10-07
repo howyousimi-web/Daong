@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage ESP32 — DAONG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Tagalog&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/manage-esp32.css">
+</head>
+<body class="esp-page has-app-header">
+<a href="#main-content" class="skip-link">Skip to main content</a>
+  <header class="app-header" id="topbar">
+    <div class="shell-wide app-header-inner tracking-header-inner">
+      <a href="index.html" class="wordmark" aria-label="DAONG Homepage">
+        <span class="mark" lang="tl" aria-hidden="true">ᜇᜂᜅ᜔</span><span class="name">DAONG</span>
+      </a>
+      <nav class="admin-tabs" aria-label="Super Admin"><a href="live-tracking.html" >Live Tracking</a><a href="manage-esp32.html" aria-current="page">Manage ESP32</a><a href="admin-demo.html#reports">Reports</a><a href="admin-demo.html#audit">Audit Logs</a></nav>
+      <div class="header-actions">
+        <button type="button" id="theme-toggle" class="icon-btn theme-toggle" aria-label="Toggle light/dark theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a class="btn btn-outline btn-sm" href="admin-demo.html#super-admin">← Admin Panel</a>
+      </div>
+    </div>
+  </header>
+
+
+<main id="main-content" class="shell-wide esp-shell">
+<div class="esp-heading"><div><span class="eyebrow">Super Admin · Hardware Management</span><h1>Manage ESP32 Modules<span>.</span></h1><p>Register your trackers. Keep every relief vehicle connected.</p></div><span class="esp-demo">BROWSER DEMO</span></div>
+<div class="esp-view-switch" aria-label="Registry views"><button type="button" id="registry-tab" class="active" aria-pressed="true">▣ Module Registry</button><button type="button" id="register-tab" aria-pressed="false">＋ Register Module</button></div>
+<div class="esp-stats" aria-label="Module totals">
+<article class="esp-stat"><span class="stat-icon">▣</span><div><span>Total modules</span><strong id="total-modules">0</strong></div></article>
+<article class="esp-stat available"><span class="stat-icon">✓</span><div><span>Available</span><strong id="available-modules">0</strong></div></article>
+<article class="esp-stat attached"><span class="stat-icon">↗</span><div><span>Attached</span><strong id="attached-modules">0</strong></div></article></div>
+<p id="esp-message" class="esp-message" role="status"></p>
+<section id="registry-view" aria-labelledby="registry-heading"><div class="esp-list-heading"><h2 id="registry-heading">Module Registry</h2><span id="result-count"></span></div>
+<div class="esp-filters"><label><span class="visually-hidden">Search module or vehicle</span><input id="module-search" type="search" placeholder="Search by module ID or vehicle…"></label><select id="module-status" aria-label="Filter module status"><option value="all">All statuses</option><option value="available">Available</option><option value="attached">Attached</option></select><select id="module-sort" aria-label="Sort modules"><option value="recent">Recently added</option><option value="oldest">Oldest first</option><option value="id">Module ID (A–Z)</option></select></div><div id="module-list" class="module-list"></div></section>
+<section id="register-view" class="esp-form-card" aria-labelledby="register-heading" hidden><span class="eyebrow">Expand your fleet</span><h2 id="register-heading">Register a module</h2><p>Add a unique hardware ID. Leave the vehicle blank to keep the module available.</p>
+<form id="module-form"><div class="esp-form-fields"><label for="module-id">Hardware ID<input id="module-id" name="id" required maxlength="40" pattern="[A-Za-z0-9_-]+" placeholder="e.g. ESP-005" aria-describedby="module-id-help"><small id="module-id-help">Letters, numbers, hyphens, and underscores only.</small></label><label for="module-vehicle">Vehicle plate <span>(optional)</span><input id="module-vehicle" name="vehicle" maxlength="40" placeholder="e.g. DAN-1254"></label></div><div class="esp-form-actions"><button class="btn btn-primary" type="submit">＋ Register Module</button><button class="btn btn-outline" id="cancel-register" type="button">Cancel</button></div></form></section>
+<p class="esp-footnote">Demo registry · Changes are saved in this browser. Hardware and server synchronization are not connected yet.</p></main>
+<dialog id="delete-module" class="esp-dialog"><form method="dialog"><span class="eyebrow">Module Registry</span><h2>Remove module?</h2><p id="delete-description"></p><div class="esp-form-actions"><button class="btn btn-outline" value="cancel" autofocus>Cancel</button><button class="btn esp-danger" value="delete">Remove Module</button></div></form></dialog>
+<script src="js/app.js"></script><script src="js/manage-esp32.js"></script></body></html>
