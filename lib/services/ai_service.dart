@@ -231,12 +231,10 @@ class DonationPlan {
   final String route;
   final String instructions;
   final String redirectHint;
-  final String redirectUrl;
 
   const DonationPlan({
     required this.route,
     required this.instructions,
     required this.redirectHint,
-    required this.redirectUrl,
   });
 }
