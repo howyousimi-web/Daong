@@ -5,29 +5,21 @@
  * before every other script, so apiService.js and js/ai/aiService.js
  * both read the same value instead of each hardcoding a URL.
  *
- * The default is same-origin: the Express server in /server serves
- * these pages and the API together, so '/api/v1' resolves correctly
- * with no configuration at all — in development and in production.
- *
- * If you host the frontend separately (Netlify, GitHub Pages, Live
- * Server…) point it at your API host by defining DAONG_CONFIG BEFORE
- * this file in each page:
+ * For a Firebase Hosting-only deployment (no Cloud Functions / no Blaze
+ * plan), set this to your separate API domain, for example:
  *
  *   <script>window.DAONG_CONFIG = { apiBaseUrl: 'https://api.example.com/api/v1' };</script>
  *   <script src="js/config.js"></script>
  *
- * …and add that page's origin to CORS_ORIGINS in server/.env.
- *
- * Nothing secret belongs in this file. It is served to every visitor.
- * API keys live in the server's environment; the browser never sees
- * them. `recaptchaSiteKey` is safe here if you use it — site keys are
- * public by design, unlike the secret key, which stays server-side.
+ * If your API is served from the same origin, you can leave this as
+ * '/api/v1'. Otherwise, use your own API host and add that origin to the
+ * backend CORS allowlist.
  * --------------------------------------------------------------- */
 (function () {
   'use strict';
 
   var defaults = {
-    apiBaseUrl: '/api/v1',
+    apiBaseUrl: 'https://your-api-domain.example.com/api/v1',
     requestTimeoutMs: 15000,
     // Only needed if you turn on REQUIRE_RECAPTCHA server-side.
     recaptchaSiteKey: null,

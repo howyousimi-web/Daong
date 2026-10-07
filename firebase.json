@@ -7,26 +7,9 @@
       "**/node_modules/**"
     ]
   },
-  "functions": [
-    {
-      "source": ".",
-      "codebase": "default",
-      "runtime": "nodejs22"
-    }
-  ],
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
   "emulators": {
     "hosting": {
       "port": 5000
-    },
-    "functions": {
-      "port": 5001
-    },
-    "firestore": {
-      "port": 8080
     },
     "ui": {
       "enabled": true,
