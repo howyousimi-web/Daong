@@ -21,7 +21,14 @@ jobs:
           flutter pub get
           flutter build web
 
-      # 3. Ship compiled web assets straight to Firebase Hosting
+      # 3. Put the built web output where Firebase Hosting expects it
+      - name: Prepare Firebase Hosting public folder
+        run: |
+          rm -rf public
+          mkdir -p public
+          cp -a build/web/. public/
+
+      # 4. Ship compiled web assets straight to Firebase Hosting
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
