@@ -1,0 +1,15 @@
+rules_version = '2';
+
+// Nothing in this app talks to Firestore directly from the browser —
+// every read/write goes through the Cloud Function (functions/index.js),
+// which uses the Admin SDK and ignores these rules entirely. So the
+// correct rule here is simply "deny everyone else": if a client-side
+// SDK ever gets pointed at this database directly, it should get
+// nothing, not partial access nobody meant to grant.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
