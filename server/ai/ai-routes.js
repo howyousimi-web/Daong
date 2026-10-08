@@ -1,26 +1,6 @@
-/**
- * server/ai/ai-routes.js
- * -----------------------------------------------------------------
- * The assistant's backend, mounted into the main API under /api/v1/ai.
- *
- * This used to be a second Express process (its own server.js, its own
- * package.json, its own port 3000) sitting beside the application API —
- * two servers competing for the same port, each wanting to serve the
- * same static site. It is now a router on the one app, so the frontend
- * talks to a single origin and `/api/v1` means one thing.
- *
- *   POST /api/v1/ai/chat      { message, history, context } -> { reply }
- *   POST /api/v1/ai/complete  { task, donationId }          -> { text }
- *   GET  /api/v1/ai/health                                  -> { ok, model }
- *
- * The model provider's API key is read from the environment here and
- * never leaves the server. The browser sends data; this file owns every
- * instruction the model receives.
- * -----------------------------------------------------------------
- */
 const express = require('express');
 
-const { buildSystemPrompt, buildTaskMessages } = require('./ai-context');
+const { buildSystemPrompt, buildTaskMessages, sanitizeContext } = require('./ai-context');
 const { buildLiveContext } = require('./ai-data');
 const { optionalAuth } = require('../auth');
 
@@ -105,19 +85,22 @@ function normaliseHistory(raw) {
 // The Messages API requires the turn list to start with a user message
 // and to alternate roles. A trimmed window can violate both.
 function repairTurns(history, message) {
-  const turns = history.slice();
-  while (turns.length && turns[0].role !== 'user') turns.shift();
+  const turns = normaliseHistory(history).filter(Boolean);
+  const cleaned = [];
 
-  const alternating = [];
-  turns.forEach((turn) => {
-    const last = alternating[alternating.length - 1];
-    if (last && last.role === turn.role) alternating[alternating.length - 1] = turn;
-    else alternating.push(turn);
-  });
+  for (const turn of turns) {
+    const previous = cleaned[cleaned.length - 1];
+    if (previous && previous.role === turn.role) {
+      cleaned[cleaned.length - 1] = turn;
+    } else {
+      cleaned.push(turn);
+    }
+  }
 
-  if (alternating.length && alternating[alternating.length - 1].role === 'user') alternating.pop();
-  alternating.push({ role: 'user', content: message });
-  return alternating;
+  while (cleaned.length && cleaned[0].role !== 'user') cleaned.shift();
+  while (cleaned.length && cleaned[cleaned.length - 1].role === 'user') cleaned.pop();
+
+  return [...cleaned, { role: 'user', content: message }];
 }
 
 // The browser tells us which donation is on screen; we look the record
@@ -146,15 +129,16 @@ function createAiRouter(store) {
     if (!message) return res.status(400).json({ error: 'empty_message' });
     if (message.length > MAX_MESSAGE_CHARS) return res.status(400).json({ error: 'message_too_long' });
 
+    const safeContext = sanitizeContext(body.context || {});
     const isAdmin = !!(req.user && req.user.role === 'admin');
-    const context = body.context || {};
+    const pageKey = safeContext.page && safeContext.page.key;
 
     // Live figures come from the database, not from the browser.
     let liveData = null;
     try {
       liveData = buildLiveContext(store, {
-        pageKey: context.page && context.page.key,
-        donationId: donationIdFromContext(context),
+        pageKey,
+        donationId: donationIdFromContext(body.context),
         isAdmin,
       });
     } catch (err) {
@@ -162,7 +146,7 @@ function createAiRouter(store) {
     }
 
     const result = await callModel({
-      system: buildSystemPrompt(context, liveData),
+      system: buildSystemPrompt(safeContext, liveData),
       messages: repairTurns(normaliseHistory(body.history), message),
       maxTokens: MAX_REPLY_TOKENS,
     });
