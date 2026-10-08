@@ -19,7 +19,7 @@
   'use strict';
 
   var defaults = {
-    apiBaseUrl: 'https://your-api-domain.example.com/api/v1',
+    apiBaseUrl: '/api/v1',
     requestTimeoutMs: 15000,
     // Only needed if you turn on REQUIRE_RECAPTCHA server-side.
     recaptchaSiteKey: null,
